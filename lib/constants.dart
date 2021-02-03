@@ -41,9 +41,31 @@ String getStoreName({context, storeid}) {
   }
 }
 
+num getUserid({context, username}) {
+  StoreData storeData = Provider.of<StoreData>(context, listen: false);
+  final res = storeData.userList.firstWhere(
+      (element) => element.username == username,
+      orElse: () => null);
+  if (res != null) {
+    return res.id;
+  } else {
+    return 0;
+  }
+}
 
-Future<User> getUserFromPrfs()async{
-  SharedPreferences prfs=await SharedPreferences.getInstance();
+String getUsername({context, userid}) {
+  StoreData storeData = Provider.of<StoreData>(context, listen: false);
+  final res = storeData.userList
+      .firstWhere((element) => element.id == userid, orElse: () => null);
+  if (res != null) {
+    return res.username;
+  } else {
+    return "-------";
+  }
+}
+
+Future<User> getUserFromPrfs() async {
+  SharedPreferences prfs = await SharedPreferences.getInstance();
   final parsed = json.decode(prfs.getString("user"));
-    return User.fromJson(parsed);
+  return User.fromJson(parsed);
 }

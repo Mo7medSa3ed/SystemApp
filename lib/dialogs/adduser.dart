@@ -1,9 +1,7 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_app/api/api.dart';
 import 'package:flutter_app/dialogs/dialogs.dart';
-import 'package:flutter_app/models/store.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/provider/storedata.dart';
 import 'package:provider/provider.dart';
@@ -45,8 +43,7 @@ class Usersdialog {
                   buildTextFormField(
                       value: user != null ? user.username : null,
                       onsaved: (v) => username = v,
-                      email: username,
-                      password: password,
+                      icon: Icons.email,
                       secure: false,
                       hint: 'اكتب الاسم',
                       label: 'الاسم',
@@ -57,8 +54,7 @@ class Usersdialog {
                   buildTextFormField(
                       value: user != null ? user.password : null,
                       onsaved: (v) => password = v,
-                      email: username,
-                      password: password,
+                      icon: Icons.lock,
                       secure: true,
                       hint: 'اكتب كلمة السر',
                       label: 'كلمة السر',
@@ -90,6 +86,8 @@ class Usersdialog {
         ),
         buttons: [
           DialogButton(
+                        height: getProportionateScreenHeight(40),
+
             color: Kprimary,
             onPressed: () async {
               user != null ? await update(user) : await add();
@@ -98,9 +96,11 @@ class Usersdialog {
               storename = null;
               role = null;
             },
-            child: Text(
-              user != null ? "تعديل عامل" : "اضف عامل",
-              style: TextStyle(color: white, fontSize: 16),
+            child: Center(
+              child: Text(
+                user != null ? "تعديل عامل" : "اضف عامل",
+                style: TextStyle(color: white, fontSize: 16),
+              ),
             ),
           )
         ]).show();
@@ -309,7 +309,7 @@ class Usersdialog {
 }
 
   moveToStoreDialog(List<User> users) {
-    
+    SizeConfig().init(context);
     return Alert(
         context: context,
         closeIcon: Icon(
@@ -343,13 +343,17 @@ class Usersdialog {
         ),
         buttons: [
           DialogButton(
+                        height: getProportionateScreenHeight(40),
+
             color: Kprimary,
             onPressed: () async {
               await moveToStore(users);
               storename=null;
             },
-            child: Text('نقل',
-              style: TextStyle(color: white, fontSize: 16),
+            child: Center(
+              child: Text('نقل',
+                style: TextStyle(color: white, fontSize: 16),
+              ),
             ),
           )
         ]).show();

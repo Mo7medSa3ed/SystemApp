@@ -1,11 +1,14 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
+import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/provider/storedata.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 TextFormField buildTextFormField(
-    {label, hint, keyboardType, secure, password, email,onsaved ,value}) {
+    {label, hint, keyboardType, secure,icon,onsaved ,value}) {
   return TextFormField(
     initialValue:value ,
     onSaved: onsaved,
@@ -20,7 +23,7 @@ TextFormField buildTextFormField(
         border: OutlineInputBorder(),
         labelText: label,
         hintText: hint,
-        suffixIcon: Icon(secure ? Icons.lock : Icons.email)),
+        suffixIcon: Icon(icon)),
   );
 }
 
@@ -72,7 +75,9 @@ saveUser(user,context) async {
   final prfs = await SharedPreferences.getInstance();
   StoreData storeData = Provider.of<StoreData>(context,listen: false);
   prfs.setString('user', user);
-  storeData.initLoginUser(user);
+  final parsed = json.decode(user);
+    User u = User.fromJson(parsed);
+  storeData.initLoginUser(u);
 }
 
  

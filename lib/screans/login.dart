@@ -49,8 +49,7 @@ class LoginScrean extends StatelessWidget {
                   ),
                   buildTextFormField(
                      onsaved: (v)=>email=v,
-                      email: email,
-                      password: password,
+                     icon: Icons.email,
                       secure: false,
                       hint: 'اكتب اسمك',
                       label: 'الاسم',
@@ -60,8 +59,7 @@ class LoginScrean extends StatelessWidget {
                   ),
                   buildTextFormField(
                     onsaved: (v)=>password=v,
-                      email: email,
-                      password: password,
+                     icon: Icons.lock,
                       secure: true,
                       hint: 'اكتب كلمة السر',
                       label: 'كلمة السر',

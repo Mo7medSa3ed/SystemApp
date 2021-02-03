@@ -73,4 +73,32 @@ deleteManyOfUsers(List<num> users){
   notifyListeners();
 }
 
+
+addStore(store){
+  storeList.add(store);
+  notifyListeners();
+}
+
+
+updateStore(Store store){
+  
+     int u =storeList.indexWhere((element) => element.id==store.id);
+  if(u!=-1){
+    storeList.removeAt(u);
+    storeList.insert(u, store);
+    notifyListeners();
+  }
+  }
+
+
+ deleteStore(Store store){
+  storeList.remove(store);
+    notifyListeners();
+} 
+ 
+
+
+
+
+
 }

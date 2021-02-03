@@ -1,43 +1,51 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
-import 'package:flutter_app/dialogs/adduser.dart';
-import 'package:flutter_app/dialogs/dialogs.dart';
-import 'package:flutter_app/models/user.dart';
+import 'package:flutter_app/dialogs/addstore.dart';
+import 'package:flutter_app/models/store.dart';
 import 'package:flutter_app/provider/storedata.dart';
 import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
 
-class UsersTable extends StatefulWidget {
+class StoreTable extends StatefulWidget {
   @override
-  _UsersTableState createState() => _UsersTableState();
+  _StoreTableState createState() => _StoreTableState();
 }
 
-class _UsersTableState extends State<UsersTable> {
+class _StoreTableState extends State<StoreTable> {
   var _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   var _sortColumnIndex = -1;
   var _sortAscending = true;
-  var uds;
+  var sds;
   bool empty = true;
   var _controller = TextEditingController();
 
   StoreData storeData;
 
-  getData()  {
-    storeData = Provider.of<StoreData>(context, listen: true);
-    final list =
-        storeData.userList.where((element) => element.id != storeData.loginUser.id).toList();
-    uds = UDS(userList: list, filteruserList: list, context: context);
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
   }
 
-  
-  
+  getData() {
+    storeData = Provider.of<StoreData>(context, listen: true);
+    final list = storeData.storeList;
+    sds = SDS(storeList: list, filterstoreList: list, context: context);
+  }
+
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+ 
+  }
 
   void _sort<T>(
-    Comparable<T> Function(User d) getField,
+    Comparable<T> Function(Store d) getField,
     int columnIndex,
     bool ascending,
   ) {
-    uds._sort<T>(getField, ascending);
+    sds._sort<T>(getField, ascending);
     setState(() {
       // [RestorableBool]'s value cannot be null, so -1 is used as a placeholder
       // to represent `null` in [DataTable]s.
@@ -53,7 +61,6 @@ class _UsersTableState extends State<UsersTable> {
   @override
   Widget build(BuildContext context) {
     getData();
-
     return SingleChildScrollView(
       child: Container(
         width: double.infinity,
@@ -76,12 +83,11 @@ class _UsersTableState extends State<UsersTable> {
           ),
           sortColumnIndex: _sortColumnIndex == -1 ? null : _sortColumnIndex,
           sortAscending: _sortAscending,
-          onSelectAll: uds._selectAll,
-          showCheckboxColumn:true,
-          source: uds,
+          showCheckboxColumn: false,
+          source: sds,
           columns: [
             DataColumn(
-              label: Text('id'),
+              label: Text('Id'),
               numeric: true,
               onSort: (columnIndex, ascending) =>
                   _sort<String>((d) => d.id.toString(), columnIndex, ascending),
@@ -89,17 +95,17 @@ class _UsersTableState extends State<UsersTable> {
             DataColumn(
               label: Text('الاسم'),
               onSort: (columnIndex, ascending) =>
-                  _sort<String>((d) => d.username, columnIndex, ascending),
+                  _sort<String>((d) => d.storename, columnIndex, ascending),
             ),
             DataColumn(
-              label: Text('الوظيفة'),
+              label: Text('العنوان'),
               onSort: (columnIndex, ascending) =>
-                  _sort<String>((d) => d.role, columnIndex, ascending),
+                  _sort<String>((d) => d.address, columnIndex, ascending),
             ),
             DataColumn(
-              label: Text('المخزن'),
+              label: Text('المدير'),
               onSort: (columnIndex, ascending) => _sort<String>(
-                  (d) => getStoreName(context: context, storeid: d.storeid),
+                  (d) => getUsername(context: context, userid: d.manager),
                   columnIndex,
                   ascending),
             ),
@@ -118,71 +124,54 @@ class _UsersTableState extends State<UsersTable> {
   }
 
   Widget buildTextField() {
-    return Selector<StoreData, bool>(
-        selector: (_, m) => m.istextempty,
-        builder: (_, data, c) {
-          return TextField(
-            controller: _controller,
-            onChanged: (v) {
-              if (v.toString() == "") {
-                uds.filter("-1");
-                storeData.changeIsEmpty(true);
-              } else {
-                uds.filter(v);
-                storeData.changeIsEmpty(false);
-              }
-            },
-            cursorColor: Kprimary,
-            decoration: InputDecoration(
-                suffixIcon: data
-                    ? Icon(Icons.search)
-                    : IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: () {
-                          _controller.clear();
-                          uds.filter("-1");
-                          storeData.changeIsEmpty(true);
-                        }),
-                hintText: 'بحث باسم العامل ...',
-                border: InputBorder.none),
-          );
-        });
+    //StoreData s =Provider.of<StoreData>(context,listen: false);
+    return TextField(
+      controller: _controller,
+      onChanged: (v) {
+        if (v.toString() == "") {
+          sds.filter("-1");
+          storeData.changeIsEmpty(true);
+        } else {
+          sds.filter(v);
+          storeData.changeIsEmpty(false);
+        }
+      },
+      cursorColor: Kprimary,
+      decoration: InputDecoration(
+          suffixIcon: storeData.istextempty
+              ? Icon(Icons.search)
+              : IconButton(
+                  icon: Icon(Icons.close),
+                  onPressed: () {
+                    _controller.clear();
+                    sds.filter("-1");
+                    storeData.changeIsEmpty(true);
+                  }),
+          hintText: 'بحث باسم المخزن ...',
+          border: InputBorder.none),
+    );
   }
 }
 
-class UDS extends DataTableSource {
-  List<User> userList;
-  List<User> filteruserList;
+class SDS extends DataTableSource {
+  List<Store> storeList;
+  List<Store> filterstoreList;
   BuildContext context;
   int _selectedCount = 0;
-  UDS({this.userList, this.context, this.filteruserList});
+  SDS({this.storeList, this.context, this.filterstoreList});
 
   @override
   DataRow getRow(int index) {
-    final user = userList[index];
+    final store = storeList[index];
     return DataRow.byIndex(
       index: index,
-      selected: user.selected,
-      onSelectChanged: (value) {
-        if (user.role != "مدير مخزن") {
-          if (user.selected != value) {
-            _selectedCount += value ? 1 : -1;
-            assert(_selectedCount >= 0);
-            user.selected = value;
-            notifyListeners();
-          }
-        }else{
-          Dialogs(context).warningDilalog2(msg: '!! لا يمكن اختيار مدير مخزن');
-          return;
-        }
-      },
       cells: [
-        DataCell(Text(user.id.toString())),
-        DataCell(Text(user.username)),
-        DataCell(Text(user.role)),
-        DataCell(Text(getStoreName(context: context, storeid: user.storeid))),
+        DataCell(Text(store.id.toString())),
+        DataCell(Text(store.storename)),
+        DataCell(Text(store.address)),
+        DataCell(Text(getUsername(context: context, userid: store.manager))),
         DataCell(Text(
-            user.created_at != null ? user.created_at.substring(0, 10) : "")),
+            store.created_at != null ? store.created_at.substring(0, 10) : "")),
         DataCell(Center(
             child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -194,14 +183,14 @@ class UDS extends DataTableSource {
                   color: black,
                 ),
                 onPressed: () =>
-                    Usersdialog(context: context).addUser(user: user)),
+                    Storesdialog(context: context).addstore(store: store)),
             IconButton(
                 icon: Icon(
                   Icons.delete_forever,
                   color: red,
                 ),
                 onPressed: () =>
-                    Usersdialog(context: context).deleteUser(user)),
+                    Storesdialog(context: context).deletestore(store)),
           ],
         ))),
       ],
@@ -214,27 +203,14 @@ class UDS extends DataTableSource {
 
   @override
   // TODO: implement rowCount
-  int get rowCount => userList.length;
+  int get rowCount => storeList.length;
 
   @override
   // TODO: implement selectedRowCount
   int get selectedRowCount => _selectedCount;
 
-  void _selectAll(bool checked) {
-    int c=0;
-    for (User user in userList) {
-      if (user.role != "مدير مخزن") {
-        user.selected = !user.selected;
-        if(user.selected){c++;}
-      }
-    }
-    
-    _selectedCount = checked ? c : 0;
-    notifyListeners();
-  }
-
-  void _sort<T>(Comparable<T> Function(User d) getField, bool ascending) {
-    userList.sort((a, b) {
+  void _sort<T>(Comparable<T> Function(Store d) getField, bool ascending) {
+    storeList.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
       return ascending
@@ -246,20 +222,15 @@ class UDS extends DataTableSource {
 
   filter(value) {
     if (value == "-1") {
-      userList = filteruserList;
+      storeList = filterstoreList;
       notifyListeners();
-      return false;
+      return;
     }
-    final l =userList.where((element) => element.username.contains(value)).toList();
-    userList = l;
+    List<Store> l = storeList
+        .where((element) => element.storename.contains(value))
+        .toList();
+    storeList = l;
     notifyListeners();
-    return true;
+    return;
   }
-
-  showSheckable(v){
-    StoreData storeData = Provider.of<StoreData>(context, listen: false);
-    storeData.changeCheckable(v);
-  }
-
-
 }

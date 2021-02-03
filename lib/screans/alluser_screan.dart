@@ -9,6 +9,7 @@ import 'package:flutter_app/tables/usertable.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
+import '../drawer.dart';
 
 class AllUserScrean extends StatelessWidget {
   StoreData storeData;
@@ -32,6 +33,7 @@ class AllUserScrean extends StatelessWidget {
               ),
             ],
           ),
+           drawer: MainDrawer(),
           floatingActionButton: buildSpeedDial(context),
           body: FutureBuilder<List<User>>(
             future: API.getAllUsers(),
@@ -71,7 +73,7 @@ class AllUserScrean extends StatelessWidget {
                     .toList()
                     .map((e) => e.id).toList(); 
                    
-                list.length>0?Usersdialog(context: context).deleteUsers(list):Dialogs(context).warningDilalog2(msg:"!! برجاء اختيار عامل ع الأفل");
+                list.length>0?Usersdialog(context: context).deleteUsers(list):Dialogs(context).warningDilalog2(msg:"!! برجاء اختيار عامل ع الأقل");
               },
               label: 'حذف  ',
               labelStyle: TextStyle(fontWeight: FontWeight.w500, color: white),

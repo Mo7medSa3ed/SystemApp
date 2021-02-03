@@ -52,8 +52,7 @@ class SignupScrean extends StatelessWidget {
                               ),
                               buildTextFormField(
                                 onsaved: (v)=>username=v,
-                                  email: username,
-                                  password: password,
+                                  icon: Icons.email,
                                   secure: false,
                                   hint: 'اكتب اسمك',
                                   label: 'الاسم',
@@ -63,8 +62,7 @@ class SignupScrean extends StatelessWidget {
                               ),
                               buildTextFormField(
                                 onsaved: (v)=>password=v,
-                                  email: username,
-                                  password: password,
+                                 icon: Icons.lock,
                                   secure: true,
                                   hint: 'اكتب كلمة السر',
                                   label: 'كلمة السر',

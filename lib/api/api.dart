@@ -21,7 +21,6 @@ class API {
     final response = await http.put('$_BASE_URL/users/all',
         headers: <String, String>{
           'Content-Type': 'application/json;charset=UTF-8',
-          
         },
         body: json.encode(user.map((e) => e.toJsonForUpdate()).toList()));
     return response;
@@ -38,14 +37,12 @@ class API {
     return response;
   }
 
-  static Future<http.Response> deleteUser(List<num>id) async {
-
+  static Future<http.Response> deleteUser(List<num> id) async {
     final response = await http.post('$_BASE_URL/users/one',
-     headers: <String, String>{
-        'Content-Type': 'application/json;charset=UTF-8'
-      },
-      body: json.encode(id)
-       );
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(id));
     return response;
   }
 
@@ -70,9 +67,33 @@ class API {
           'Content-Type': 'application/json;charset=UTF-8'
         },
         body: json.encode(store.toJson()));
-    final body = utf8.decode(response.bodyBytes);
-    final parsed = json.decode(body).cast<Map<String, dynamic>>();
-    return Store.fromJson(parsed);
+    if (response.statusCode == 200) {
+      final body = utf8.decode(response.bodyBytes);
+      final parsed = json.decode(body);
+      return Store.fromJson(parsed);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response> deleteStore(num id) async {
+    final response = await http.delete('$_BASE_URL/stores/one/$id');
+    return response;
+  }
+
+  static Future<Store> updateStore(Store store) async {
+    final response = await http.put('$_BASE_URL/stores/all',
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(store.toJsonForUpdate()));
+    if (response.statusCode == 200) {
+      final body = utf8.decode(response.bodyBytes);
+      final parsed = json.decode(body);
+      return Store.fromJson(parsed);
+    } else {
+      return null;
+    }
   }
 
   static Future<List<Store>> getAllstores() async {

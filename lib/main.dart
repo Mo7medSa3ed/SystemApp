@@ -22,9 +22,7 @@ class MyApp extends StatelessWidget {
           accentColor: Kprimary,
           primaryColor: Kprimary,
           cursorColor: Kprimary,
-        iconTheme: IconThemeData(
-          color: white
-        ),
+        
           visualDensity: VisualDensity.adaptivePlatformDensity,
         ),
         home: SplashScrean(),
