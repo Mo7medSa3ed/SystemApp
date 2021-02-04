@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
 import 'package:flutter_app/dialogs/addstore.dart';
 import 'package:flutter_app/models/store.dart';
+import 'package:flutter_app/provider/specials.dart';
 import 'package:flutter_app/provider/storedata.dart';
 import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
@@ -16,29 +17,13 @@ class _StoreTableState extends State<StoreTable> {
   var _sortColumnIndex = -1;
   var _sortAscending = true;
   var sds;
-  bool empty = true;
   var _controller = TextEditingController();
-
   StoreData storeData;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
   getData() {
-    storeData = Provider.of<StoreData>(context, listen: true);
-    final list = storeData.storeList;
-    sds = SDS(storeList: list, filterstoreList: list, context: context);
+    storeData = Provider.of<StoreData>(context,listen: true);
+    sds = SDS(storeList:storeData.storeList, filterstoreList: storeData.storeList, context: context);
   }
-
-  @override
-  void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
-    super.didChangeDependencies();
  
-  }
 
   void _sort<T>(
     Comparable<T> Function(Store d) getField,
@@ -60,6 +45,7 @@ class _StoreTableState extends State<StoreTable> {
 
   @override
   Widget build(BuildContext context) {
+    
     getData();
     return SingleChildScrollView(
       child: Container(
@@ -121,35 +107,49 @@ class _StoreTableState extends State<StoreTable> {
         ),
       ),
     );
+  
+  
+  
   }
 
+
+
+
+
+
   Widget buildTextField() {
-    //StoreData s =Provider.of<StoreData>(context,listen: false);
+    Specials s =Provider.of<Specials>(context,listen: false);
+    return Selector<Specials, bool>(
+        selector: (_, m) => m.istextempty,
+        builder: (_, data, c) {
+      
     return TextField(
       controller: _controller,
       onChanged: (v) {
-        if (v.toString() == "") {
+        if (v.trim() == "") {
           sds.filter("-1");
-          storeData.changeIsEmpty(true);
+          s.changeIsEmpty(true);
+          _controller.clear();
         } else {
-          sds.filter(v);
-          storeData.changeIsEmpty(false);
+          sds.filter(v.trim());
+          s.changeIsEmpty(false);
         }
       },
       cursorColor: Kprimary,
       decoration: InputDecoration(
-          suffixIcon: storeData.istextempty
+          suffixIcon: data
               ? Icon(Icons.search)
               : IconButton(
                   icon: Icon(Icons.close),
                   onPressed: () {
                     _controller.clear();
                     sds.filter("-1");
-                    storeData.changeIsEmpty(true);
+                    s.changeIsEmpty(true);
                   }),
           hintText: 'بحث باسم المخزن ...',
           border: InputBorder.none),
     );
+      });
   }
 }
 
@@ -226,11 +226,12 @@ class SDS extends DataTableSource {
       notifyListeners();
       return;
     }
-    List<Store> l = storeList
+    if (value.toString().trim().isNotEmpty) {    
+    List<Store> l = filterstoreList
         .where((element) => element.storename.contains(value))
         .toList();
     storeList = l;
     notifyListeners();
     return;
-  }
+  }}
 }

@@ -37,7 +37,9 @@ class AllStoresScrean extends StatelessWidget {
             builder: (ctx, snap) {
               if (snap.hasData) {
                 storeData.initUserList(snap.data);
+
                 return StoreTable();
+              
               } else {
                 return SpinKitCircle(
                   color: Kprimary,

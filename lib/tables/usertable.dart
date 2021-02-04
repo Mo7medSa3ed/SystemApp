@@ -3,6 +3,7 @@ import 'package:flutter_app/constants.dart';
 import 'package:flutter_app/dialogs/adduser.dart';
 import 'package:flutter_app/dialogs/dialogs.dart';
 import 'package:flutter_app/models/user.dart';
+import 'package:flutter_app/provider/specials.dart';
 import 'package:flutter_app/provider/storedata.dart';
 import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
@@ -17,20 +18,19 @@ class _UsersTableState extends State<UsersTable> {
   var _sortColumnIndex = -1;
   var _sortAscending = true;
   var uds;
-  bool empty = true;
   var _controller = TextEditingController();
-
+  List<User> userList=[];
   StoreData storeData;
+  Specials s;
 
   getData()  {
-    storeData = Provider.of<StoreData>(context, listen: true);
+    storeData = Provider.of<StoreData>(context,listen: true);
+    userList =storeData.userList;
     final list =
-        storeData.userList.where((element) => element.id != storeData.loginUser.id).toList();
+        userList.where((element) => element.id != storeData.loginUser.id).toList();
     uds = UDS(userList: list, filteruserList: list, context: context);
   }
 
-  
-  
 
   void _sort<T>(
     Comparable<T> Function(User d) getField,
@@ -53,7 +53,6 @@ class _UsersTableState extends State<UsersTable> {
   @override
   Widget build(BuildContext context) {
     getData();
-
     return SingleChildScrollView(
       child: Container(
         width: double.infinity,
@@ -118,30 +117,33 @@ class _UsersTableState extends State<UsersTable> {
   }
 
   Widget buildTextField() {
-    return Selector<StoreData, bool>(
+     s = Provider.of<Specials>(context,listen: false); 
+    return Selector<Specials, bool>(
         selector: (_, m) => m.istextempty,
         builder: (_, data, c) {
           return TextField(
             controller: _controller,
             onChanged: (v) {
-              if (v.toString() == "") {
+              if (v.toString().trim() == "") {
                 uds.filter("-1");
-                storeData.changeIsEmpty(true);
+                s.changeIsEmpty(true);
+                          _controller.clear();
+
               } else {
-                uds.filter(v);
-                storeData.changeIsEmpty(false);
+                uds.filter(v.trim());
+                s.changeIsEmpty(false);
               }
             },
             cursorColor: Kprimary,
             decoration: InputDecoration(
-                suffixIcon: data
+                suffixIcon: _controller.text.toString().trim()==""
                     ? Icon(Icons.search)
                     : IconButton(
                         icon: Icon(Icons.close),
                         onPressed: () {
                           _controller.clear();
                           uds.filter("-1");
-                          storeData.changeIsEmpty(true);
+                          s.changeIsEmpty(true);
                         }),
                 hintText: 'بحث باسم العامل ...',
                 border: InputBorder.none),
@@ -250,7 +252,8 @@ class UDS extends DataTableSource {
       notifyListeners();
       return false;
     }
-    final l =userList.where((element) => element.username.contains(value)).toList();
+    final l =
+        userList.where((element) => element.username.contains(value)).toList();
     userList = l;
     notifyListeners();
     return true;

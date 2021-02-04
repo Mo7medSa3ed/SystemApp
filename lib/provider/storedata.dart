@@ -8,7 +8,6 @@ class StoreData extends ChangeNotifier {
 List<User> userList=[];
 List<Store>storeList=[];
 List<Product>productList=[];
-bool istextempty = true;
 bool isCheckable=false;
 User loginUser;
 
@@ -16,10 +15,6 @@ initLoginUser(User user){
   loginUser =user;
 } 
 
-changeIsEmpty(v){
-  istextempty=v;
-  notifyListeners();
-}
 
 changeCheckable(v){
   isCheckable=v;
@@ -93,10 +88,9 @@ updateStore(Store store){
 
  deleteStore(Store store){
   storeList.remove(store);
-    notifyListeners();
+  notifyListeners();
 } 
  
-
 
 
 
