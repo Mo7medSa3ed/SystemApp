@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app/constants.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/provider/storedata.dart';
@@ -19,6 +20,9 @@ TextFormField buildTextFormField(
         : null,
     obscureText: secure,
     keyboardType: keyboardType,
+    maxLengthEnforced:keyboardType==TextInputType.number?true:false,
+    maxLength:keyboardType==TextInputType.number?7:null,
+    inputFormatters: keyboardType==TextInputType.number?[FilteringTextInputFormatter.digitsOnly]:null,
     decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: label,

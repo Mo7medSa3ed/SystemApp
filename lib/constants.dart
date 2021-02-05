@@ -69,3 +69,28 @@ Future<User> getUserFromPrfs() async {
   final parsed = json.decode(prfs.getString("user"));
   return User.fromJson(parsed);
 }
+
+
+num getCategoryid({context, name}) {
+  StoreData storeData = Provider.of<StoreData>(context, listen: false);
+  final res = storeData.categoryList.firstWhere(
+      (element) => element.name == name,
+      orElse: () => null);
+  if (res != null) {
+    return res.id;
+  } else {
+    return 0;
+  }
+}
+
+String getCategoryname({context, id}) {
+  StoreData storeData = Provider.of<StoreData>(context, listen: false);
+  final res = storeData.categoryList.firstWhere(
+      (element) => element.id== id,
+      orElse: () => null);
+  if (res != null) {
+    return res.name;
+  } else {
+    return '-------';
+  }
+}

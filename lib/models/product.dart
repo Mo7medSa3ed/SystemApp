@@ -5,9 +5,10 @@ num sell_price;
 num buy_price;
 num amount;
 num storeid;
+num categoryId;
 String created_at;
 
-Product({this.id,this.created_at,this.storeid,this.amount,this.buy_price,this.productName,this.sell_price});
+Product({this.id,this.created_at,this.storeid,this.amount,this.buy_price,this.productName,this.sell_price,this.categoryId});
 
 factory Product.fromJson(Map<String, dynamic> json) => Product(
       id: json['id'],
@@ -15,6 +16,7 @@ factory Product.fromJson(Map<String, dynamic> json) => Product(
       sell_price: json['sell_price'],
       buy_price: json['buy_price'],
       amount: json['amount'],
+      categoryId: json['categoryId'],
       storeid: json['storeid'],
       created_at: json['created_at'],
       
@@ -28,6 +30,7 @@ factory Product.fromJson(Map<String, dynamic> json) => Product(
     'buy_price':buy_price,
     'amount':amount,
     'storeid':storeid,
+    'categoryId':categoryId
  
   };
  
@@ -38,6 +41,7 @@ factory Product.fromJson(Map<String, dynamic> json) => Product(
     'buy_price':buy_price,
     'amount':amount,
     'storeid':storeid,
+    'categoryId':categoryId
   };
 
 }

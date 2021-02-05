@@ -1,5 +1,6 @@
 import 'dart:convert';
-
+import 'package:flutter_app/models/category.dart';
+import 'package:flutter_app/models/product.dart';
 import 'package:flutter_app/models/store.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:http/http.dart' as http;
@@ -109,4 +110,111 @@ class API {
     final parsed = json.decode(body).cast<Map<String, dynamic>>();
     return Store.fromJson(parsed);
   }
+
+    //function for products
+
+  static Future<Product> addProduct(Product product) async {
+    final response = await http.post('$_BASE_URL/products/all',
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(product.toJson()));
+    if (response.statusCode == 200) {
+      final body = utf8.decode(response.bodyBytes);
+      final parsed = json.decode(body);
+      return Product.fromJson(parsed);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response> deleteProduct(num id) async {
+    final response = await http.delete('$_BASE_URL/products/one/$id');
+    return response;
+  }
+
+  static Future<Product> updateProduct(Product product) async {
+    final response = await http.put('$_BASE_URL/products/all',
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(product.toJsonForUpdate()));
+    if (response.statusCode == 200) {
+      final body = utf8.decode(response.bodyBytes);
+      final parsed = json.decode(body);
+      return Product.fromJson(parsed);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<List<Product>> getAllProducts() async {
+    final response = await http.get('$_BASE_URL/products/all');
+    final body = utf8.decode(response.bodyBytes);
+    final parsed = json.decode(body).cast<Map<String, dynamic>>();
+    return parsed.map<Product>((product) => Product.fromJson(product)).toList();
+  }
+
+  static Future<Product> getOneProduct(num id) async {
+    final response = await http.get('$_BASE_URL/products/one/$id');
+    final body = utf8.decode(response.bodyBytes);
+    final parsed = json.decode(body).cast<Map<String, dynamic>>();
+    return Product.fromJson(parsed);
+  }
+
+
+
+  //function for categories
+
+
+  static Future<Categorys> addCategory(Categorys category) async {
+    final response = await http.post('$_BASE_URL/categories/all',
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(category.toJson()));
+    if (response.statusCode == 200) {
+      final body = utf8.decode(response.bodyBytes);
+      final parsed = json.decode(body);
+      return Categorys.fromJson(parsed);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response> deleteCategory(num id) async {
+    final response = await http.delete('$_BASE_URL/categories/one/$id');
+    return response;
+  }
+
+  static Future<Categorys> updateCategory(Categorys category) async {
+    final response = await http.put('$_BASE_URL/categories/all',
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(category.toJsonForUpdate()));
+    if (response.statusCode == 200) {
+      final body = utf8.decode(response.bodyBytes);
+      final parsed = json.decode(body);
+      return Categorys.fromJson(parsed);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<List<Categorys>> getAllCategories() async {
+    final response = await http.get('$_BASE_URL/categories/all');
+    final body = utf8.decode(response.bodyBytes);
+    final parsed = json.decode(body).cast<Map<String, dynamic>>();
+    return parsed.map<Categorys>((category) => Categorys.fromJson(category)).toList();
+  }
+
+  static Future<Categorys> getOneCategory(num id) async {
+    final response = await http.get('$_BASE_URL/categories/one/$id');
+    final body = utf8.decode(response.bodyBytes);
+    final parsed = json.decode(body).cast<Map<String, dynamic>>();
+    return Categorys.fromJson(parsed);
+  }
+
+
 }

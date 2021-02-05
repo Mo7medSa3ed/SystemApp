@@ -83,7 +83,7 @@ class SignupScrean extends StatelessWidget {
                                   headertext: 'اختر المخزن التابع له',
                                   list: Provider.of<StoreData>(context,
                                           listen: false)
-                                      .getStoreNameList(),
+                                      .storeList.map((e) => e.storename).toList(),
                                   value: false),
                               SizedBox(
                                 height: getProportionateScreenHeight(20),

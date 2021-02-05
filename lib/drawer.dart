@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
+import 'package:flutter_app/screans/allcategories_screan.dart';
+import 'package:flutter_app/screans/allproducts_screan.dart';
 import 'package:flutter_app/screans/allstores_screan.dart';
 import 'package:flutter_app/screans/alluser_screan.dart';
 import 'package:flutter_app/screans/home.dart';
@@ -33,8 +35,8 @@ class MainDrawer extends StatelessWidget {
             buildListTile(context, "الرئيسية", Icons.home, HomeScrean()),
             buildListTile(context, "جميع العمال", Icons.people, AllUserScrean()),
             buildListTile(context, "جميع المخازن", Icons.store, AllStoresScrean()),
-            buildListTile(context, "الرئيسية", Icons.home, HomeScrean()),
-            buildListTile(context, "الرئيسية", Icons.home, HomeScrean()),
+            buildListTile(context, "جميع المنتجات", Icons.list_alt_rounded, AllProductScrean()),
+            buildListTile(context, "جميع الفئات", Icons.category, AllCategoriesScrean()),
             buildListTile(context, "الرئيسية", Icons.home, HomeScrean()),
           ],
         ),

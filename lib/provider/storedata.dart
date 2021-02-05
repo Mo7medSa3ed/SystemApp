@@ -1,13 +1,17 @@
 
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/models/product.dart';
 import 'package:flutter_app/models/store.dart';
 import 'package:flutter_app/models/user.dart';
+import 'package:flutter_app/models/category.dart';
+
 
 class StoreData extends ChangeNotifier {
 List<User> userList=[];
 List<Store>storeList=[];
 List<Product>productList=[];
+List<Categorys> categoryList=[];
 bool isCheckable=false;
 User loginUser;
 
@@ -25,6 +29,9 @@ initUserList(userList){
   this.userList = userList;
 }
 
+initCategoryList(categoryList){
+  this.categoryList = categoryList;
+}
 initStoreList(storeList){
   this.storeList = storeList;
 }
@@ -33,11 +40,6 @@ initProductList(productList){
   this.productList = productList;
 }
 
-List<String>getStoreNameList(){
-  List<String> list =[];
-  storeList.forEach((element) =>list.add(element.storename));
-  return list;
-}
 
 addUser(User user){
   userList.add(user);
@@ -92,7 +94,51 @@ updateStore(Store store){
 } 
  
 
+addCategory(category){
+  categoryList.add(category);
+  notifyListeners();
+}
 
+
+updateCategory(Categorys category){
+  
+     int u =categoryList.indexWhere((element) => element.id==category.id);
+  if(u!=-1){
+    categoryList.removeAt(u);
+    categoryList.insert(u, category);
+    notifyListeners();
+  }
+  }
+
+
+ deleteCategory(Categorys category){
+  categoryList.remove(category);
+  notifyListeners();
+} 
+
+
+addProduct(product){
+  productList.add(product);
+  notifyListeners();
+}
+
+
+updateProduct(Product product){
+  
+     int u =productList.indexWhere((element) => element.id==product.id);
+  if(u!=-1){
+    productList.removeAt(u);
+    productList.insert(u, product);
+    notifyListeners();
+  }
+  }
+
+
+ deleteProduct(Product product){
+  productList.remove(product);
+  notifyListeners();
+} 
+ 
 
 
 }

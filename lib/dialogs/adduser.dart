@@ -76,8 +76,7 @@ class Usersdialog {
                           ? getStoreName(
                               context: context, storeid: user.storeid)
                           : 'اختر المخزن التابع له',
-                      list: Provider.of<StoreData>(context, listen: false)
-                          .getStoreNameList(),
+                      list: storeData.storeList.map((e) => e.storename).toList(),
                       value: false),
                 ],
               ),
@@ -333,8 +332,7 @@ class Usersdialog {
                   buildDropDown(
                       expanded: expanded,
                       headertext: 'اختر المخزن المراد النقل اليه',
-                      list: Provider.of<StoreData>(context, listen: false)
-                          .getStoreNameList(),
+                      list:storeData.storeList.map((e) => e.storename).toList(),
                       value: false),
                 ],
               ),

@@ -1,4 +1,3 @@
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app/api/api.dart';
@@ -32,6 +31,8 @@ class _SplashScreanState extends State<SplashScrean> {
 
     await API.getAllstores().then((value) => storeData.initStoreList(value));
     await API.getAllUsers().then((value) => storeData.initUserList(value));
+    await API.getAllCategories().then((value) => storeData.initCategoryList(value));
+    
 
     if (prfs.getString('user') != null) {
       User user = await getUserFromPrfs();
