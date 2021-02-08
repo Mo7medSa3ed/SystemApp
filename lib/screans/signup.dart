@@ -89,6 +89,7 @@ class SignupScrean extends StatelessWidget {
                                 height: getProportionateScreenHeight(20),
                               ),
                               buildRaisedButton(
+                                color: Kprimary,
                                   text: 'انشاء حساب',
                                   pressed: () async => await signup(context)),
                               SizedBox(

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/api/api.dart';
 import 'package:flutter_app/dialogs/dialogs.dart';
-import 'package:flutter_app/models/category.dart';
+import 'package:flutter_app/models/Customer.dart';
 import 'package:flutter_app/provider/storedata.dart';
 import 'package:provider/provider.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
@@ -9,17 +9,17 @@ import '../constants.dart';
 import '../size_config.dart';
 import '../widget.dart';
 
-class CategoryDialog {
+class CustomerDialog {
   BuildContext context;
-  CategoryDialog({this.context});
-  String name;
+  CustomerDialog({this.context, this.type});
+  String name, phone, address, type;
   bool expanded = false;
   StoreData storeData;
   final formKey = GlobalKey<FormState>();
 
-  addcategory({Categorys category}) {
+  addcustomer({Customer customer}) {
     SizeConfig().init(context);
-          storeData = Provider.of<StoreData>(context, listen: false);
+    storeData = Provider.of<StoreData>(context, listen: false);
     return Alert(
         context: context,
         closeIcon: Icon(
@@ -27,11 +27,11 @@ class CategoryDialog {
           color: black,
           size: 24,
         ),
-        title: category != null ? "تعديل فئة" : "اضف فئة",
+        title: customer != null ? "تعديل $type" : "اضف $type",
         content: Directionality(
           textDirection: TextDirection.rtl,
           child: Container(
-            width: MediaQuery.of(context).size.width -40,
+            width: MediaQuery.of(context).size.width - 40,
             child: Form(
               key: formKey,
               child: Column(
@@ -40,13 +40,35 @@ class CategoryDialog {
                     height: getProportionateScreenHeight(10),
                   ),
                   buildTextFormField(
-                      value: category != null ? category.name : null,
+                      value: customer != null ? customer.name : null,
                       onsaved: (v) => name = v,
                       secure: false,
                       hint: 'اكتب الاسم',
-                      label: 'اسم الفئة',
+                      label: 'اسم $type',
                       keyboardType: TextInputType.text),
-               
+                  SizedBox(
+                    height: getProportionateScreenHeight(20),
+                  ),
+                  buildTextFormField(
+                      value: customer != null ? customer.address : null,
+                      onsaved: (v) => address = v,
+                      secure: false,
+                      hint: 'اكتب العنوان',
+                      label: 'عنوان $type',
+                      keyboardType: TextInputType.text),
+                  SizedBox(
+                    height: getProportionateScreenHeight(20),
+                  ),
+                  buildTextFormField(
+                      value: customer != null ? customer.phone : null,
+                      onsaved: (v) => phone = v,
+                      secure: false,
+                      hint: 'التليفون',
+                      label: 'تليفون $type',
+                      keyboardType: TextInputType.phone),
+                  SizedBox(
+                    height: getProportionateScreenHeight(10),
+                  ),
                 ],
               ),
             ),
@@ -56,13 +78,13 @@ class CategoryDialog {
           DialogButton(
             color: Kprimary,
             height: getProportionateScreenHeight(40),
-            onPressed:()async {
-            category!=null?await update(category):await add();
-            category=null;
+            onPressed: () async {
+              customer != null ? await update(customer) : await add();
+              customer = null;
             },
             child: Center(
               child: Text(
-                category != null ? "تعديل فئة" : "اضف فئة",
+                customer != null ? "تعديل $type" : "اضف $type",
                 style: TextStyle(color: white, fontSize: 16),
                 textAlign: TextAlign.center,
               ),
@@ -71,24 +93,21 @@ class CategoryDialog {
         ]).show();
   }
 
-
   add() async {
-    
     formKey.currentState.save();
-    if (name == null ) {
+    if (name == null || phone == null) {
       return Dialogs(context).infoDilalog();
     } else {
       showDialogWidget(context);
       storeData = Provider.of<StoreData>(context, listen: false);
-      Categorys category = Categorys(
-        productslength: 0.0,
-          name: name);
-      final res = await API.addCategory(category);
-      if (res!=null) {
-        storeData.addCategory(res);
+      Customer customer =
+          Customer(address: address, phone: phone, type: type, name: name);
+      final res = await API.addcustomer(customer);
+      if (res != null) {
+        storeData.addcustomer(res);
         Navigator.pop(context);
         Navigator.pop(context);
-        Dialogs(context).successDilalog("تم اضافة فئة بنجاح");
+        Dialogs(context).successDilalog("تم اضافة $type بنجاح");
       } else {
         Navigator.pop(context);
         Navigator.pop(context);
@@ -97,23 +116,27 @@ class CategoryDialog {
     }
   }
 
-  update(Categorys category) async {
+  update(Customer customer) async {
     formKey.currentState.save();
     if (name == null) {
-      name =category.name;
+      name = customer.name;
     }
-     else {
+    if (phone == null) {
+      phone = customer.phone;
+    }
+    if (address == null) {
+      address = customer.address;
+    } else {
       showDialogWidget(context);
       storeData = Provider.of<StoreData>(context, listen: false);
-       Categorys c = Categorys(
-         id: category.id,
-          name: name);
-      final res = await API.updateCategory(c);
-      if (res!=null) {
-        storeData.updateCategory(res);
+      Customer c =
+          Customer(id: customer.id, name: name, address: address, phone: phone ,type: type);
+      final res = await API.updatecustomer(c);
+      if (res != null) {
+        storeData.updatecustomer(res);
         Navigator.pop(context);
         Navigator.pop(context);
-        Dialogs(context).successDilalog("تم تعديل الفئة بنجاح");
+        Dialogs(context).successDilalog("تم تعديل $type بنجاح");
       } else {
         Navigator.pop(context);
         Navigator.pop(context);
@@ -122,29 +145,22 @@ class CategoryDialog {
     }
   }
 
-  deletecategory(Categorys category) {
+  deletecustomer(Customer customer) {
     Dialogs(context).warningDilalog(
         msg: "هل انت متأكد من عملية الحذف؟",
-         onpress: () async {
+        onpress: () async {
           Navigator.pop(context);
           showDialogWidget(context);
           storeData = Provider.of<StoreData>(context, listen: false);
-          final res = await API.deleteCategory(category.id);
+          final res = await API.deletecustomer(customer.id);
           if (res.statusCode == 200) {
-            storeData.deleteCategory(category);
+            storeData.deletecustomer(customer);
             Navigator.pop(context);
-            Dialogs(context).successDilalog("تم حذف الفئة بنجاح");
+            Dialogs(context).successDilalog("تم حذف $type بنجاح");
           } else {
             Navigator.pop(context);
             Dialogs(context).errorDilalog();
           }
         });
   }
-  
-  
-
-
-
-
-  
 }

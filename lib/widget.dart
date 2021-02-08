@@ -21,7 +21,7 @@ TextFormField buildTextFormField(
     obscureText: secure,
     keyboardType: keyboardType,
     maxLengthEnforced:keyboardType==TextInputType.number?true:false,
-    maxLength:keyboardType==TextInputType.number?7:null,
+    maxLength:keyboardType==TextInputType.number?7:keyboardType==TextInputType.phone?11:null,
     inputFormatters: keyboardType==TextInputType.number?[FilteringTextInputFormatter.digitsOnly]:null,
     decoration: InputDecoration(
         border: OutlineInputBorder(),
@@ -31,14 +31,14 @@ TextFormField buildTextFormField(
   );
 }
 
-Widget buildRaisedButton({pressed, text}) {
+Widget buildRaisedButton({pressed, text ,color}) {
   return Container(
       width: double.infinity,
       child: RaisedButton(
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10.0),
           ),
-          color: Kprimary,
+          color: color,
           onPressed: pressed,
           child: Padding(
             padding: const EdgeInsets.all(6.0),
@@ -84,5 +84,7 @@ saveUser(user,context) async {
   storeData.initLoginUser(u);
 }
 
- 
+
+
+
  

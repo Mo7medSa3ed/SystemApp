@@ -41,6 +41,12 @@ class User {
     'storeid':storeid
   };
 
+   Map<String,dynamic> toJsonForPermission()=> {
+    'username':username,
+    'password':password,
+    'role':role,
+  };
+
 }
 
 

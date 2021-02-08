@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
+import 'package:flutter_app/screans/addpermission.dart';
 import 'package:flutter_app/screans/allcategories_screan.dart';
+import 'package:flutter_app/screans/allcustomers_screan.dart';
+import 'package:flutter_app/screans/allpermissions_screan.dart';
 import 'package:flutter_app/screans/allproducts_screan.dart';
 import 'package:flutter_app/screans/allstores_screan.dart';
 import 'package:flutter_app/screans/alluser_screan.dart';
@@ -11,7 +14,7 @@ class MainDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-          child: Drawer(
+      child: Drawer(
         child: ListView(
           children: [
             DrawerHeader(
@@ -33,11 +36,23 @@ class MainDrawer extends StatelessWidget {
                   ],
                 )),
             buildListTile(context, "الرئيسية", Icons.home, HomeScrean()),
-            buildListTile(context, "جميع العمال", Icons.people, AllUserScrean()),
-            buildListTile(context, "جميع المخازن", Icons.store, AllStoresScrean()),
-            buildListTile(context, "جميع المنتجات", Icons.list_alt_rounded, AllProductScrean()),
-            buildListTile(context, "جميع الفئات", Icons.category, AllCategoriesScrean()),
-            buildListTile(context, "الرئيسية", Icons.home, HomeScrean()),
+            buildListTile(
+                context, "جميع العمال", Icons.people, AllUserScrean()),
+                buildListTile(context, "جميع العملاء", Icons.people,
+                AllCustomerScrean(type:'عميل',title: "جميع العملاء")),
+            buildListTile(context, "جميع الموردين", Icons.people,
+                AllCustomerScrean(type:"مورد",title: "جميع الموردين",)),
+            buildListTile(
+                context, "جميع المخازن", Icons.store, AllStoresScrean()),
+            buildListTile(context, "جميع المنتجات", Icons.list_alt_rounded,
+                AllProductScrean()),
+            buildListTile(
+                context, "جميع الفئات", Icons.category, AllCategoriesScrean()),
+                buildListTile(
+                context, "جميع الآذونات", Icons.security, AllPermissionsScrean()),
+            
+            buildListTile(context, "اذن اضافة", Icons.home, AddpPermissionScrean(type: 'add',)),
+            buildListTile(context, "اذن صرف", Icons.home, AddpPermissionScrean(type: 'lack',)),
           ],
         ),
       ),
@@ -53,9 +68,9 @@ class MainDrawer extends StatelessWidget {
           icon,
           color: Kprimary,
         ),
-        onTap: () { 
+        onTap: () {
           Navigator.of(context).pop();
           Navigator.of(context).push(MaterialPageRoute(builder: (_) => page));
-          },
+        },
       );
 }

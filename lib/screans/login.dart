@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/api/api.dart';
+import 'package:flutter_app/constants.dart';
 import 'package:flutter_app/screans/home.dart';
 import 'package:flutter_app/screans/signup.dart';
 import 'package:flutter_app/size_config.dart';
@@ -67,7 +68,7 @@ class LoginScrean extends StatelessWidget {
                   SizedBox(
                     height: getProportionateScreenHeight(20),
                   ),
-                  buildRaisedButton(text: 'تسجيل الدخول',pressed: ()async=>await login(context)),
+                  buildRaisedButton(text: 'تسجيل الدخول',color: Kprimary,pressed: ()async=>await login(context)),
                   SizedBox(
                     height: getProportionateScreenHeight(10),
                   ),

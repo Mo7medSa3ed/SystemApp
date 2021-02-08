@@ -34,6 +34,9 @@ dependencies:
   flutter_spinkit: ^4.1.2+1
   rflutter_alert: ^1.1.0
   flutter_speed_dial: ^1.2.5
+  filter_list: ^0.0.5
+  autocomplete_textfield: ^1.7.3
+  flutter_switch: ^0.2.0
 
 dev_dependencies:
   flutter_test:

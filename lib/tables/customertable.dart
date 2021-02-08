@@ -1,19 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
-import 'package:flutter_app/dialogs/addcategory.dart';
-import 'package:flutter_app/models/category.dart';
+import 'package:flutter_app/dialogs/addcustomer.dart';
+import 'package:flutter_app/models/Customer.dart';
 import 'package:flutter_app/provider/specials.dart';
 import 'package:flutter_app/provider/storedata.dart';
 import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
 
 
-class CategoryTable extends StatefulWidget {
+class CustomerTable extends StatefulWidget {
+  final String type;
+  CustomerTable( {this.type} );
+
   @override
-  _CategoryTableState createState() => _CategoryTableState();
+  _CustomerTableState createState() => _CustomerTableState();
 }
 
-class _CategoryTableState extends State<CategoryTable> {
+class _CustomerTableState extends State<CustomerTable> {
   var _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   var _sortColumnIndex = -1;
   var _sortAscending = true;
@@ -23,13 +26,14 @@ class _CategoryTableState extends State<CategoryTable> {
   getData() {
     storeData = Provider.of<StoreData>(context, listen: true);
     cds = Cds(
-        categoryList: storeData.categoryList,
-        filterCategoryList: storeData.categoryList,
+        type: widget.type,
+        customerList: storeData.customerList,
+        filtercustomerList: storeData.customerList,
         context: context);
   }
 
   void _sort<T>(
-    Comparable<T> Function(Categorys d) getField,
+    Comparable<T> Function(Customer d) getField,
     int columnIndex,
     bool ascending,
   ) {
@@ -85,12 +89,23 @@ class _CategoryTableState extends State<CategoryTable> {
               onSort: (columnIndex, ascending) =>
                   _sort<String>((d) => d.name, columnIndex, ascending),
             ),
-            DataColumn(
-              label: Text('عدد المنتجات بداخلها'),
+             DataColumn(
+              label: Text('الحساب'),
               numeric: true,
               onSort: (columnIndex, ascending) =>
-                  _sort<num>((d) => d.productslength, columnIndex, ascending),
+                  _sort<num>((d) => d.total_money, columnIndex, ascending),
             ),
+            DataColumn(
+              label: Text('العنوان'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<String>((d) => d.address, columnIndex, ascending),
+            ),
+            DataColumn(
+              label: Text('التليفون'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<String>((d) => d.phone, columnIndex, ascending),
+            ),
+           
             DataColumn(
               label: Text('تاريخ الاشتراك'),
               onSort: (columnIndex, ascending) =>
@@ -133,7 +148,7 @@ class _CategoryTableState extends State<CategoryTable> {
                           cds.filter("-1");
                           s.changeIsEmpty(true);
                         }),
-                hintText: 'بحث باسم الفئة ...',
+                hintText: ' بحث باسم ال${widget.type} ...',
                 border: InputBorder.none),
           );
         });
@@ -141,23 +156,27 @@ class _CategoryTableState extends State<CategoryTable> {
 }
 
 class Cds extends DataTableSource {
-  List<Categorys> categoryList;
-  List<Categorys> filterCategoryList;
+  List<Customer> customerList;
+  List<Customer> filtercustomerList;
   BuildContext context;
+  String type;
   int _selectedCount = 0;
-  Cds({this.categoryList, this.context, this.filterCategoryList});
+  Cds({this.customerList, this.context, this.filtercustomerList ,this.type});
 
   @override
   DataRow getRow(int index) {
-    final category = categoryList[index];
+    final customer = customerList[index];
+  
     return DataRow.byIndex(
       index: index,
       cells: [
-        DataCell(Text(category.id.toString())),
-        DataCell(Text(category.name)),
-        DataCell(Center(child: Text(category.productslength==null?'0':category.productslength.toInt().toString()))),
-        DataCell(Text(category.created_at != null
-            ? category.created_at.substring(0, 10)
+        DataCell(Text(customer.id.toString())),
+        DataCell(Text(customer.name)),
+        DataCell(Text(customer.total_money.toString())),
+        DataCell(Text(customer.address)),
+        DataCell(Text(customer.phone)),
+        DataCell(Text(customer.created_at != null
+            ? customer.created_at.substring(0, 10)
             : "")),
         DataCell(Center(
             child: Row(
@@ -170,14 +189,14 @@ class Cds extends DataTableSource {
                   color: black,
                 ),
                 onPressed: () =>
-                 CategoryDialog(context: context).addcategory(category: category) ),
+                 CustomerDialog(context: context ,type:type ).addcustomer(customer: customer) ),
             IconButton(
                 icon: Icon(
                   Icons.delete_forever,
                   color: red,
                 ),
                 onPressed: () =>
-                 CategoryDialog(context: context).deletecategory(category)),
+                 CustomerDialog(context: context,type:type).deletecustomer(customer)),
           ],
         ))),
       ],
@@ -190,14 +209,14 @@ class Cds extends DataTableSource {
 
   @override
   // TODO: implement rowCount
-  int get rowCount => categoryList.length;
+  int get rowCount => customerList.length;
 
   @override
   // TODO: implement selectedRowCount
   int get selectedRowCount => _selectedCount;
 
-  void _sort<T>(Comparable<T> Function(Categorys d) getField, bool ascending) {
-    categoryList.sort((a, b) {
+  void _sort<T>(Comparable<T> Function(Customer d) getField, bool ascending) {
+    customerList.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
       return ascending
@@ -209,15 +228,15 @@ class Cds extends DataTableSource {
 
   filter(value) {
     if (value == "-1") {
-      categoryList = filterCategoryList;
+      customerList = filtercustomerList;
       notifyListeners();
       return;
     }
     if (value.toString().trim().isNotEmpty) {
-      List<Categorys> l = filterCategoryList
+      List<Customer> l = filtercustomerList
           .where((element) => element.name.contains(value))
           .toList();
-      categoryList = l;
+      customerList = l;
       notifyListeners();
       return;
     }

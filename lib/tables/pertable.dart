@@ -1,34 +1,31 @@
-import 'package:filter_list/filter_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
 import 'package:flutter_app/dialogs/addproduct.dart';
-import 'package:flutter_app/models/category.dart';
 import 'package:flutter_app/models/product.dart';
 import 'package:flutter_app/provider/specials.dart';
 import 'package:flutter_app/provider/storedata.dart';
 import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
 
-class ProductTable extends StatefulWidget {
+class PerTable extends StatefulWidget {
+  final type;
+  PerTable({this.type});
   @override
   _StoreTableState createState() => _StoreTableState();
 }
 
-class _StoreTableState extends State<ProductTable> {
+class _StoreTableState extends State<PerTable> {
   var _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   var _sortColumnIndex = -1;
   var _sortAscending = true;
   var pds;
   var _controller = TextEditingController();
-  List<Product> filterdata = [];
-  List<String> filterList=[];
+  
   StoreData storeData;
   getData() {
     storeData = Provider.of<StoreData>(context, listen: true);
-    pds = PDS(
-        context: context,
-        productList: storeData.productList,
-        filterproductList: storeData.productList);
+    final list = storeData.productTableList;
+    pds = PDS(context: context, productList: list, filterproductList: list,type: widget.type);
   }
 
   void _sort<T>(
@@ -49,54 +46,9 @@ class _StoreTableState extends State<ProductTable> {
     });
   }
 
-
-
-void _openFilterDialog() async {
-    await FilterListDialog.display(
-      context,
-      allTextList: storeData.categoryList.map((e) => e.name).toList(),
-      height: 480,
-      borderRadius: 20,
-      headlineText: "Select Categories",
-      searchFieldHintText: "Search here",
-      selectedTextList: filterList,
-      headerTextColor: Kprimary,
-      applyButonTextBackgroundColor:Kprimary,
-      allResetButonColor:Kprimary,
-      selectedTextBackgroundColor:Kprimary,
-      onApplyButtonClick: (list) {
-        if (list != null) {
-          setState(() {
-            filterList = List.from(list);
-          });
-        }
-        Navigator.pop(context);
-      });
-  }
-
-
-
-  categoryfilter(List<String> list){
-      List<num> idList=[];
-      list.forEach((element) {
-        idList.add( storeData.categoryList.firstWhere((e) =>e.name==element).id);
-      });
-
-      filterdata=storeData.productList.where((element) => idList.contains(element.categoryId)).toList();
-      print(filterdata.length);
-        pds = PDS(
-        context: context,
-        productList: filterdata,
-        filterproductList: storeData.productList);
-  }
-    
-
-
-
-
   @override
   Widget build(BuildContext context) {
-    filterList.length>0? categoryfilter(filterList):getData();
+    getData();
     return SingleChildScrollView(
       child: Container(
         width: double.infinity,
@@ -125,11 +77,14 @@ void _openFilterDialog() async {
               ),
               IconButton(
                   icon: Icon(
-                    Icons.filter_list_alt,
+                    Icons.delete_forever,
                     size: 35,
-                    color: Kprimary,
+                    color: red,
                   ),
-                  onPressed: ()async =>await _openFilterDialog()),
+                  onPressed: (){
+                    final l = storeData.productTableList.where((element) => element.selected).toList();
+                     ProductDialog(context: context).deleteProductsTable(l);
+                  }),
             ],
           ),
           sortColumnIndex: _sortColumnIndex == -1 ? null : _sortColumnIndex,
@@ -145,15 +100,20 @@ void _openFilterDialog() async {
                   _sort<num>((d) => d.id, columnIndex, ascending),
             ),
             DataColumn(
-              label: Text('الاسم'),
+              label: Text('اسم المنتج'),
               onSort: (columnIndex, ascending) =>
                   _sort<String>((d) => d.productName, columnIndex, ascending),
             ),
             DataColumn(
               numeric: true,
-              label: Text('سعر الشراء'),
+              label: Text('الفئة'),
               onSort: (columnIndex, ascending) =>
-                  _sort<num>((d) => d.buy_price, columnIndex, ascending),
+                  _sort<num>((d) => d.categoryId, columnIndex, ascending),
+            ),
+            DataColumn(
+              label: Text('الكمية'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<num>((d) => d.amount, columnIndex, ascending),
             ),
             DataColumn(
               numeric: true,
@@ -162,26 +122,11 @@ void _openFilterDialog() async {
                   _sort<num>((d) => d.sell_price, columnIndex, ascending),
             ),
             DataColumn(
-              label: Text('الكمية'),
-              onSort: (columnIndex, ascending) =>
-                  _sort<num>((d) => d.amount, columnIndex, ascending),
-            ),
-            DataColumn(
               label: Text('المخزن'),
               onSort: (columnIndex, ascending) => _sort<String>(
                   (d) => getStoreName(context: context, storeid: d.storeid),
                   columnIndex,
                   ascending),
-            ),
-            DataColumn(
-              label: Text('الفئة'),
-              onSort: (columnIndex, ascending) => _sort<String>(
-                  (d) => d.categoryId.toString(), columnIndex, ascending),
-            ),
-            DataColumn(
-              label: Text('تاريخ الاشتراك'),
-              onSort: (columnIndex, ascending) =>
-                  _sort<String>((d) => d.created_at, columnIndex, ascending),
             ),
             DataColumn(
               label: Expanded(child: Center(child: Text('تعديل / حذف'))),
@@ -196,6 +141,9 @@ void _openFilterDialog() async {
     Specials s = Provider.of<Specials>(context, listen: false);
     return Selector<Specials, bool>(
         selector: (_, m) => m.istextempty,
+
+        
+
         builder: (_, data, c) {
           return TextField(
             controller: _controller,
@@ -231,15 +179,15 @@ class PDS extends DataTableSource {
   List<Product> productList;
   List<Product> filterproductList;
   BuildContext context;
+  String type;
   int _selectedCount = 0;
-  StoreData _storeData ;
-  PDS({this.productList, this.context, this.filterproductList});
+  StoreData _storeData;
+  PDS({this.productList, this.context, this.filterproductList,this.type});
 
   @override
   DataRow getRow(int index) {
     final product = productList[index];
     return DataRow.byIndex(
-      index: index,
       selected: product.selected,
       onSelectChanged: (value) {
         if (product.selected != value) {
@@ -252,16 +200,12 @@ class PDS extends DataTableSource {
       cells: [
         DataCell(Text(product.id.toString())),
         DataCell(Text(product.productName)),
-        DataCell(Center(child: Text(product.buy_price.toString()))),
-        DataCell(Center(child: Text(product.sell_price.toString()))),
-        DataCell(Center(child: Text(product.amount.toString()))),
-        DataCell(
-            Text(getStoreName(context: context, storeid: product.storeid))),
         DataCell(
             Text(getCategoryname(context: context, id: product.categoryId))),
-        DataCell(Text(product.created_at != null
-            ? product.created_at.substring(0, 10)
-            : "")),
+        DataCell(Center(child: Text(product.amount.toString()))),
+        DataCell(Center(child: Text(product.sell_price.toString()))),
+        DataCell(
+            Text(getStoreName(context: context, storeid: product.storeid))),
         DataCell(Center(
             child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -273,14 +217,14 @@ class PDS extends DataTableSource {
                   color: black,
                 ),
                 onPressed: () =>
-                    ProductDialog(context: context).addproduct(p: product)),
+                    ProductDialog(context: context).updateAmount(product,type)),
             IconButton(
                 icon: Icon(
                   Icons.delete_forever,
                   color: red,
                 ),
                 onPressed: () =>
-                    ProductDialog(context: context).deleteproduct(product))
+                    ProductDialog(context: context).deleteProductfrontable(product))
             // Storesdialog(context: context).deletestore(Product)),
           ],
         ))),
@@ -298,7 +242,7 @@ class PDS extends DataTableSource {
 
   @override
   // TODO: implement selectedRowCount
-  int get selectedRowCount => _selectedCount;
+  int get selectedRowCount => 0;
 
   void _sort<T>(Comparable<T> Function(Product d) getField, bool ascending) {
     productList.sort((a, b) {
@@ -310,8 +254,7 @@ class PDS extends DataTableSource {
     });
     notifyListeners();
   }
-
-  void _selectAll(bool checked) {
+ void _selectAll(bool checked) {
     int c = 0;
     for (Product user in productList) {
       user.selected = !user.selected;
@@ -338,12 +281,8 @@ class PDS extends DataTableSource {
       notifyListeners();
       return;
     }
-
-   
-
   }
 }
-
 
 /**
  * productList.where((element) {

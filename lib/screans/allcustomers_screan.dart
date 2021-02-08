@@ -1,16 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/api/api.dart';
 import 'package:flutter_app/constants.dart';
-import 'package:flutter_app/dialogs/addcategory.dart';
+import 'package:flutter_app/dialogs/addcustomer.dart';
 import 'package:flutter_app/drawer.dart';
-import 'package:flutter_app/models/category.dart';
+import 'package:flutter_app/models/Customer.dart';
 import 'package:flutter_app/provider/storedata.dart';
-import 'package:flutter_app/tables/categorytable.dart';
+import 'package:flutter_app/tables/customertable.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
 
-class AllCategoriesScrean extends StatelessWidget {
+class AllCustomerScrean extends StatelessWidget {
   StoreData storeData;
+  final String type;
+  final String title;
+  AllCustomerScrean({this.type , this.title});
+
+  
+
   @override
   Widget build(BuildContext context) {
     storeData = Provider.of<StoreData>(context, listen: false);
@@ -18,27 +24,27 @@ class AllCategoriesScrean extends StatelessWidget {
       textDirection: TextDirection.rtl,
       child: Scaffold(
           appBar: AppBar(
-            title: Text('جميع الفئات'),
+            title: Text(title),
             actions: [
               IconButton(
                   icon: Icon(
                     Icons.add_circle_outline,
                     size: 30,
                   ),
-                  onPressed: () =>  CategoryDialog(context: context).addcategory()),
+                  onPressed: () =>  CustomerDialog(context: context,type:type).addcustomer()),
               SizedBox(
                 width: 15,
               ),
             ],
           ),
           drawer: MainDrawer(),
-          body: FutureBuilder<List<Categorys>>(
-            future: API.getAllCategories(),
+          body: FutureBuilder<List<Customer>>(
+            future: API.getAllcustomers(),
             builder: (ctx, snap) {
               if (snap.hasData) {
-                storeData.initCategoryList(snap.data);
+                storeData.initcustomerList(snap.data);
 
-                return CategoryTable();
+                return CustomerTable(type: type,);
               
               } else {
                 return SpinKitCircle(

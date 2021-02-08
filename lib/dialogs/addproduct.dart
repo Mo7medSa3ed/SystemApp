@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/api/api.dart';
+import 'package:flutter_app/dialogs/addcategory.dart';
 import 'package:flutter_app/dialogs/dialogs.dart';
 import 'package:flutter_app/models/product.dart';
 import 'package:flutter_app/provider/storedata.dart';
@@ -42,7 +43,7 @@ class ProductDialog {
                   ),
                   buildTextFormField(
                       value: p != null ? p.productName : null,
-                      onsaved: (v) => storename = v,
+                      onsaved: (v) => productname = v,
                       secure: false,
                       hint: 'اكتب الاسم',
                       label: 'اسم المنتج',
@@ -51,7 +52,7 @@ class ProductDialog {
                     height: getProportionateScreenHeight(20),
                   ),
                   buildTextFormField(
-                      value: p != null ? p.buy_price : null,
+                      value: p != null ? p.buy_price.toString() : null,
                       onsaved: (v) => buyprice = v,
                       secure: false,
                       hint: 'اكتب سعر الشراء',
@@ -62,7 +63,7 @@ class ProductDialog {
                     height: getProportionateScreenHeight(20),
                   ),
                   buildTextFormField(
-                      value: p != null ? p.sell_price : null,
+                      value: p != null ? p.sell_price.toString() : null,
                       onsaved: (v) => sellprice = v,
                       secure: false,
                       icon: Icons.monetization_on_outlined,
@@ -73,7 +74,7 @@ class ProductDialog {
                     height: getProportionateScreenHeight(20),
                   ),
                   buildTextFormField(
-                      value: p != null ? p.amount : null,
+                      value: p != null ? p.amount.toString() : null,
                       onsaved: (v) => amount = v,
                       secure: false,
                       hint: 'اكتب الكمية المتاحة',
@@ -82,6 +83,40 @@ class ProductDialog {
                   SizedBox(
                     height: getProportionateScreenHeight(20),
                   ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Consumer<StoreData>(
+                          builder: (c, s, w) => buildDropDown(
+                              expanded: expanded,
+                              headertext: p != null
+                                  ? getCategoryname(
+                                      context: context, id: p.categoryId)
+                                  : 'اختر الفئة',
+                              list: s.categoryList.map((e) => e.name).toList(),
+                              value: false),
+                        ),
+                      ),
+                      Container(
+                          margin: EdgeInsets.only(right: 5.0, bottom: 1),
+                          height: 64,
+                          width: 78,
+                          alignment: Alignment.center,
+                          child: RaisedButton(
+                              color: Kprimary,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(4)),
+                              child: Center(
+                                  child: Icon(
+                                Icons.add,
+                                size: 30,
+                                color: white,
+                              )),
+                              onPressed: () => CategoryDialog(context: context)
+                                  .addcategory())),
+                    ],
+                  ),
+                  SizedBox(height: getProportionateScreenHeight(20)),
                   buildDropDown(
                       expanded: expanded,
                       headertext: p != null
@@ -93,14 +128,6 @@ class ProductDialog {
                   SizedBox(
                     height: getProportionateScreenHeight(25),
                   ),
-                  buildDropDown(
-                      expanded: expanded,
-                      headertext: p != null
-                          ? getCategoryname(context: context, id: p.categoryId)
-                          : 'اختر الفئة',
-                      list: storeData.categoryList.map((e) => e.name).toList(),
-                      value: false),
-                  SizedBox(height: getProportionateScreenHeight(20)),
                 ],
               ),
             ),
@@ -111,7 +138,7 @@ class ProductDialog {
             color: Kprimary,
             height: getProportionateScreenHeight(40),
             onPressed: () async {
-              //  p!=null?await update(store):await add();
+              p != null ? await update(p) : await add();
             },
             child: Center(
               child: Text(
@@ -258,9 +285,10 @@ class ProductDialog {
           storeid: getStoreid(context: context, storename: storename),
           categoryId: getCategoryid(context: context, name: category));
 
-      final res = await API.addProduct(p);
+      final res = await API.updateProduct([product]);
       if (res != null) {
-        storeData.updateProduct(res);
+        product.created_at = DateTime.now().toString();
+        storeData.updateProduct([product]);
         Navigator.pop(context);
         Navigator.pop(context);
         Dialogs(context).successDilalog("تم تعديل منتج بنجاح");
@@ -279,15 +307,196 @@ class ProductDialog {
           Navigator.pop(context);
           showDialogWidget(context);
           storeData = Provider.of<StoreData>(context, listen: false);
-          final res = await API.deleteProduct(p.id);
+          final res = await API.deleteProduct([p.id]);
           if (res.statusCode == 200) {
-            storeData.deleteProduct(p);
+            storeData.deleteProduct([p]);
             Navigator.pop(context);
             Dialogs(context).successDilalog("تم حذف المنتج بنجاح");
           } else {
             Navigator.pop(context);
             Dialogs(context).errorDilalog();
           }
+        });
+  }
+
+  deleteProducts(List<num> product) {
+    Dialogs(context).warningDilalog(
+        msg: "هل انت متأكد من عملية الحذف؟",
+        onpress: () async {
+          Navigator.pop(context);
+          showDialogWidget(context);
+          storeData = Provider.of<StoreData>(context, listen: false);
+          final res = await API.deleteProduct(product);
+          if (res.statusCode == 200) {
+            storeData.deleteManyOfProducts(product);
+            Navigator.pop(context);
+            Dialogs(context).successDilalog("تم حذف المنتحات بنجاح");
+          } else {
+            Navigator.pop(context);
+            Dialogs(context).errorDilalog();
+          }
+        });
+  }
+
+  moveToStore(List<Product> produscts) async {
+    if (storename == null) {
+      return Dialogs(context).infoDilalog();
+    } else {
+      showDialogWidget(context);
+      storeData = Provider.of<StoreData>(context, listen: false);
+      produscts.forEach((element) {
+        element.storeid = getStoreid(context: context, storename: storename);
+      });
+      final res = await API.updateProduct(produscts);
+      if (res.statusCode == 200) {
+        storeData.updateProduct(produscts);
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Dialogs(context).successDilalog("تم نقل المنتجات بنجاح");
+      } else {
+        Navigator.pop(context);
+        Navigator.pop(context);
+        Dialogs(context).errorDilalog();
+      }
+    }
+  }
+
+  moveToStoreDialog(List<Product> produscts) {
+    storeData = Provider.of<StoreData>(context, listen: false);
+    SizeConfig().init(context);
+    return Alert(
+        context: context,
+        closeIcon: Icon(
+          Icons.close,
+          color: black,
+          size: 24,
+        ),
+        title: 'نقل لمخزن آخر',
+        content: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.60,
+            child: Form(
+              key: formKey,
+              child: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: getProportionateScreenHeight(10),
+                  ),
+                  buildDropDown(
+                      expanded: expanded,
+                      headertext: 'اختر المخزن المراد النقل اليه',
+                      list:
+                          storeData.storeList.map((e) => e.storename).toList(),
+                      value: true),
+                ],
+              ),
+            ),
+          ),
+        ),
+        buttons: [
+          DialogButton(
+            height: getProportionateScreenHeight(40),
+            color: Kprimary,
+            onPressed: () async {
+              await moveToStore(produscts);
+              storename = null;
+            },
+            child: Center(
+              child: Text(
+                'نقل',
+                style: TextStyle(color: white, fontSize: 16),
+              ),
+            ),
+          )
+        ]).show();
+  }
+
+  updateAmount(Product p, type) {
+    SizeConfig().init(context);
+    return Alert(
+        context: context,
+        closeIcon: Icon(
+          Icons.close,
+          color: black,
+          size: 24,
+        ),
+        title: 'تعديل الكمية',
+        content: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.60,
+            child: Form(
+              key: formKey,
+              child: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: getProportionateScreenHeight(10),
+                  ),
+                  buildTextFormField(
+                      value: p != null ? p.amount.toString() : null,
+                      onsaved: (v) => amount = v,
+                      secure: false,
+                      hint: 'اكتب الكمية',
+                      label: 'الكمية',
+                      keyboardType: TextInputType.number),
+                ],
+              ),
+            ),
+          ),
+        ),
+        buttons: [
+          DialogButton(
+            height: getProportionateScreenHeight(40),
+            color: Kprimary,
+            onPressed: () => updateamount(type, p),
+            child: Center(
+              child: Text(
+                'تعديل الكمية',
+                style: TextStyle(color: white, fontSize: 16),
+              ),
+            ),
+          )
+        ]).show();
+  }
+
+  updateamount(type, p) {
+    formKey.currentState.save();
+    storeData = Provider.of<StoreData>(context, listen: false);
+    storeData.sum-=(p.amount*p.sell_price);
+    p.amount = int.parse(amount.trim());
+    if (type != 'add') {
+      Product p2 = storeData.productList.firstWhere((e) => e.id == p.id);
+
+      if (int.parse(amount) <= p2.amount) {
+        storeData.updateproductTable(p);
+        Navigator.pop(context);
+        // Dialogs(context).successDilalog("تم تعديل المنتج بنجاح");
+      } else {
+         Navigator.pop(context);
+        Dialogs(context)
+            .warningDilalog2(msg: 'اقصى كمية يمكن صرفها ${p2.amount}');
+      }
+    } else {
+      storeData.updateproductTable(p);
+      Navigator.pop(context);
+    }
+  }
+
+  deleteProductfrontable(product) {
+    storeData = Provider.of<StoreData>(context, listen: false);
+    storeData.deleteproductTable(product);
+  }
+
+  deleteProductsTable(List<Product> product) {
+    Dialogs(context).warningDilalog(
+        msg: "هل انت متأكد من عملية الحذف؟",
+        onpress: () async {
+          storeData = Provider.of<StoreData>(context, listen: false);
+            storeData.deleteManyOfproductsTable(product);
+            Navigator.pop(context);
+            Dialogs(context).successDilalog("تم حذف المنتحات بنجاح");
+          
         });
   }
 }

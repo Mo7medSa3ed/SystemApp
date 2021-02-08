@@ -308,6 +308,7 @@ class Usersdialog {
 }
 
   moveToStoreDialog(List<User> users) {
+    storeData = Provider.of<StoreData>(context, listen: false);
     SizeConfig().init(context);
     return Alert(
         context: context,

@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'package:flutter_app/models/Customer.dart';
+import 'package:flutter_app/models/Permission.dart';
 import 'package:flutter_app/models/category.dart';
 import 'package:flutter_app/models/product.dart';
 import 'package:flutter_app/models/store.dart';
@@ -128,21 +130,22 @@ class API {
     }
   }
 
-  static Future<http.Response> deleteProduct(num id) async {
-    final response = await http.delete('$_BASE_URL/products/one/$id');
+  static Future<http.Response> deleteProduct(List<num> id) async {
+    final response = await http.post('$_BASE_URL/products/one',
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(id));
     return response;
   }
-
-  static Future<Product> updateProduct(Product product) async {
+  static Future<http.Response> updateProduct(List<Product> product) async {
     final response = await http.put('$_BASE_URL/products/all',
         headers: <String, String>{
           'Content-Type': 'application/json;charset=UTF-8'
         },
-        body: json.encode(product.toJsonForUpdate()));
-    if (response.statusCode == 200) {
-      final body = utf8.decode(response.bodyBytes);
-      final parsed = json.decode(body);
-      return Product.fromJson(parsed);
+        body: json.encode(product.map((e) => e.toJsonForUpdate()).toList()));
+    if (response!=null) {
+      return response;
     } else {
       return null;
     }
@@ -216,5 +219,78 @@ class API {
     return Categorys.fromJson(parsed);
   }
 
+ 
+  // function for customers
 
+
+
+  static Future<Customer> addcustomer(Customer customer) async {
+    final response = await http.post('$_BASE_URL/customers/all',
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(customer.toJson()));
+    if (response.statusCode == 200) {
+      final body = utf8.decode(response.bodyBytes);
+      final parsed = json.decode(body);
+      return Customer.fromJson(parsed);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<http.Response> deletecustomer(num id) async {
+    final response = await http.delete('$_BASE_URL/customers/one/$id');
+    return response;
+  }
+
+  static Future<Customer> updatecustomer(Customer customer) async {
+    final response = await http.put('$_BASE_URL/customers/all',
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(customer.toJsonForUpdate()));
+    if (response.statusCode == 200) {
+      final body = utf8.decode(response.bodyBytes);
+      final parsed = json.decode(body);
+      return Customer.fromJson(parsed);
+    } else {
+      return null;
+    }
+  }
+
+  static Future<List<Customer>> getAllcustomers() async {
+    final response = await http.get('$_BASE_URL/customers/all');
+    final body = utf8.decode(response.bodyBytes);
+    final parsed = json.decode(body).cast<Map<String, dynamic>>();
+    return parsed.map<Customer>((customer) => Customer.fromJson(customer)).toList();
+  }
+
+  static Future<Customer> getOnecustomer(num id) async {
+    final response = await http.get('$_BASE_URL/customers/one/$id');
+    final body = utf8.decode(response.bodyBytes);
+    final parsed = json.decode(body).cast<Map<String, dynamic>>();
+    return Customer.fromJson(parsed);
+  }
+
+
+  // permission
+
+
+  static Future<List<Permission>> getAllpermissions() async {
+    final response = await http.get('$_BASE_URL/permisions/all');
+    final body = utf8.decode(response.bodyBytes);
+    final parsed = json.decode(body).cast<Map<String, dynamic>>();
+    print(parsed);
+    return parsed.map<Permission>((permission) => Permission.fromJson(permission)).toList();
+  }
+
+ static Future<http.Response> addPermission(Permission permisions) async {
+    final response = await http.post('$_BASE_URL/permisions/all',
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(permisions.toJson()));
+    return response;
+  }
 }
