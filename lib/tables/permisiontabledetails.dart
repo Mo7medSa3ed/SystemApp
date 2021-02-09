@@ -1,36 +1,42 @@
+import 'package:filter_list/filter_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
-import 'package:flutter_app/dialogs/addproduct.dart';
-import 'package:flutter_app/dialogs/dialogs.dart';
-import 'package:flutter_app/models/product.dart';
+import 'package:flutter_app/models/Permission.dart';
 import 'package:flutter_app/provider/specials.dart';
-import 'package:flutter_app/provider/storedata.dart';
 import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
 
-class PerTable extends StatefulWidget {
-  final type;
-  PerTable({this.type});
+class PermisionTableDetails extends StatefulWidget {
+  List<ProductBackup> list;
+  String type;
+  PermisionTableDetails(this.list,this.type);
   @override
   _StoreTableState createState() => _StoreTableState();
 }
 
-class _StoreTableState extends State<PerTable> {
+class _StoreTableState extends State<PermisionTableDetails> {
   var _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   var _sortColumnIndex = -1;
   var _sortAscending = true;
   var pds;
   var _controller = TextEditingController();
-  
-  StoreData storeData;
+
   getData() {
-    storeData = Provider.of<StoreData>(context, listen: true);
-    final list = storeData.productTableList;
-    pds = PDS(context: context, productList: list, filterproductList: list,type: widget.type);
+    pds = PDS(
+        context: context,
+        productList: widget.list,
+        filterproductList: widget.list);
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getData();
   }
 
   void _sort<T>(
-    Comparable<T> Function(Product d) getField,
+    Comparable<T> Function(ProductBackup d) getField,
     int columnIndex,
     bool ascending,
   ) {
@@ -49,7 +55,6 @@ class _StoreTableState extends State<PerTable> {
 
   @override
   Widget build(BuildContext context) {
-    getData();
     return SingleChildScrollView(
       child: Container(
         width: double.infinity,
@@ -73,31 +78,11 @@ class _StoreTableState extends State<PerTable> {
                   child: buildTextField(),
                 ),
               ),
-              SizedBox(
-                width: 15,
-              ),
-              IconButton(
-                  icon: Icon(
-                    Icons.delete_forever,
-                    size: 35,
-                    color: red,
-                  ),
-                  onPressed: (){
-                    final l = storeData.productTableList.where((element) => element.selected).toList();
-                    if(l.length>0){
-
-                     ProductDialog(context: context).deleteProductsTable(l);
-                    }else{
-                      Dialogs(context)
-                      .warningDilalog2(msg: '!! برجاء اختيار منتج ع الأقل ');
-                    }
-                  }),
             ],
           ),
           sortColumnIndex: _sortColumnIndex == -1 ? null : _sortColumnIndex,
           sortAscending: _sortAscending,
-          showCheckboxColumn: true,
-          onSelectAll: pds._selectAll,
+          showCheckboxColumn: false,
           source: pds,
           columns: [
             DataColumn(
@@ -107,36 +92,41 @@ class _StoreTableState extends State<PerTable> {
                   _sort<num>((d) => d.id, columnIndex, ascending),
             ),
             DataColumn(
-              label: Text('اسم المنتج'),
+              label: Text('الاسم'),
               onSort: (columnIndex, ascending) =>
                   _sort<String>((d) => d.productName, columnIndex, ascending),
             ),
             DataColumn(
-              numeric: true,
               label: Text('الفئة'),
-              onSort: (columnIndex, ascending) =>
-                  _sort<num>((d) => d.categoryId, columnIndex, ascending),
+              onSort: (columnIndex, ascending) => _sort<String>(
+                  (d) => d.categoryId.toString(), columnIndex, ascending),
             ),
             DataColumn(
-              label: Text('الكمية'),
+              label: Text(widget.type=='add'? 'الكمية المصروفة':'الكمية المضافة'),
               onSort: (columnIndex, ascending) =>
                   _sort<num>((d) => d.amount, columnIndex, ascending),
+            ),
+            DataColumn(
+              label: Text(widget.type=='add'?'الكمية قبل الصرف':'الكمية قبل الإضافة'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<num>((d) => d.amount_before, columnIndex, ascending),
+            ),
+            DataColumn(
+              label: Text(widget.type=='add'?'الكمية بعد الصرف':'الكمية بعد الإضافة'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<num>((d) => d.amount_after, columnIndex, ascending),
+            ),
+            DataColumn(
+              numeric: true,
+              label: Text('سعر الشراء'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<num>((d) => d.buy_price, columnIndex, ascending),
             ),
             DataColumn(
               numeric: true,
               label: Text('سعر البيع '),
               onSort: (columnIndex, ascending) =>
                   _sort<num>((d) => d.sell_price, columnIndex, ascending),
-            ),
-            DataColumn(
-              label: Text('المخزن'),
-              onSort: (columnIndex, ascending) => _sort<String>(
-                  (d) => getStoreName(context: context, storeid: d.storeid),
-                  columnIndex,
-                  ascending),
-            ),
-            DataColumn(
-              label: Expanded(child: Center(child: Text('تعديل / حذف'))),
             ),
           ],
         ),
@@ -148,9 +138,6 @@ class _StoreTableState extends State<PerTable> {
     Specials s = Provider.of<Specials>(context, listen: false);
     return Selector<Specials, bool>(
         selector: (_, m) => m.istextempty,
-
-        
-
         builder: (_, data, c) {
           return TextField(
             controller: _controller,
@@ -183,58 +170,28 @@ class _StoreTableState extends State<PerTable> {
 }
 
 class PDS extends DataTableSource {
-  List<Product> productList;
-  List<Product> filterproductList;
+  List<ProductBackup> productList;
+  List<ProductBackup> filterproductList;
   BuildContext context;
-  String type;
   int _selectedCount = 0;
-  StoreData _storeData;
-  PDS({this.productList, this.context, this.filterproductList,this.type});
+
+  PDS({this.productList, this.context, this.filterproductList});
 
   @override
   DataRow getRow(int index) {
     final product = productList[index];
     return DataRow.byIndex(
-      selected: product.selected,
-      onSelectChanged: (value) {
-        if (product.selected != value) {
-          _selectedCount += value ? 1 : -1;
-          assert(_selectedCount >= 0);
-          product.selected = value;
-          notifyListeners();
-        }
-      },
+      index: index,
       cells: [
         DataCell(Text(product.id.toString())),
         DataCell(Text(product.productName)),
         DataCell(
             Text(getCategoryname(context: context, id: product.categoryId))),
         DataCell(Center(child: Text(product.amount.toString()))),
+        DataCell(Center(child: Text(product.amount_before.toString()))),
+        DataCell(Center(child: Text(product.amount_after.toString()))),
+        DataCell(Center(child: Text(product.buy_price.toString()))),
         DataCell(Center(child: Text(product.sell_price.toString()))),
-        DataCell(
-            Text(getStoreName(context: context, storeid: product.storeid))),
-        DataCell(Center(
-            child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            IconButton(
-                icon: Icon(
-                  Icons.edit,
-                  color: black,
-                ),
-                onPressed: () =>
-                    ProductDialog(context: context).updateAmount(product,type)),
-            IconButton(
-                icon: Icon(
-                  Icons.delete_forever,
-                  color: red,
-                ),
-                onPressed: () =>
-                    ProductDialog(context: context).deleteProductfrontable(product))
-            // Storesdialog(context: context).deletestore(Product)),
-          ],
-        ))),
       ],
     );
   }
@@ -249,9 +206,10 @@ class PDS extends DataTableSource {
 
   @override
   // TODO: implement selectedRowCount
-  int get selectedRowCount => 0;
+  int get selectedRowCount => _selectedCount;
 
-  void _sort<T>(Comparable<T> Function(Product d) getField, bool ascending) {
+  void _sort<T>(
+      Comparable<T> Function(ProductBackup d) getField, bool ascending) {
     productList.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
@@ -259,18 +217,6 @@ class PDS extends DataTableSource {
           ? Comparable.compare(aValue, bValue)
           : Comparable.compare(bValue, aValue);
     });
-    notifyListeners();
-  }
- void _selectAll(bool checked) {
-    int c = 0;
-    for (Product user in productList) {
-      user.selected = !user.selected;
-      if (user.selected) {
-        c++;
-      }
-    }
-
-    _selectedCount = checked ? c : 0;
     notifyListeners();
   }
 
@@ -281,7 +227,7 @@ class PDS extends DataTableSource {
       return;
     }
     if (value.toString().trim().isNotEmpty) {
-      List<Product> l = filterproductList
+      List<ProductBackup> l = filterproductList
           .where((element) => element.productName.contains(value))
           .toList();
       productList = l;

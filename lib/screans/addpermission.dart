@@ -39,16 +39,10 @@ class AddpPermissionScrean extends StatelessWidget {
   Product product;
 
   var controller = TextEditingController();
+  
 
   var amountController = TextEditingController(text: '0');
   var scrollController = ScrollController();
-
-  calcfinalprice() {
-    finalPrice = 0.0;
-    storeData.productTableList.forEach((e) {
-      finalPrice += (e.amount * e.sell_price);
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,17 +64,19 @@ class AddpPermissionScrean extends StatelessWidget {
             ),
             floatingActionButton: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Selector<Specials,bool>(
+              child: Selector<Specials, bool>(
                 selector: (c, s) => s.scroll,
                 builder: (_, v, c) => FloatingActionButton(
                   backgroundColor: Kprimary.withOpacity(0.7),
-                  child: Icon(v?Icons.arrow_upward:Icons.arrow_downward),
+                  child: Icon(v ? Icons.arrow_upward : Icons.arrow_downward),
                   onPressed: () {
                     scrollController.animateTo(
-                       v? scrollController.position.minScrollExtent:scrollController.position.maxScrollExtent,
+                        v
+                            ? scrollController.position.minScrollExtent
+                            : scrollController.position.maxScrollExtent,
                         duration: Duration(milliseconds: 500),
                         curve: Curves.fastOutSlowIn);
-                        specials.changescroll(!v);
+                    specials.changescroll(!v);
                   },
                 ),
               ),
@@ -361,6 +357,8 @@ class AddpPermissionScrean extends StatelessWidget {
                       }
                     })),
             Spacer(),
+
+            // updat
             RaisedButton(
               color: v.productselected ? Kprimary : Kprimary.withOpacity(0.3),
               onPressed: () {
@@ -368,12 +366,28 @@ class AddpPermissionScrean extends StatelessWidget {
                   Dialogs(context)
                       .warningDilalog2(msg: ' !!ادخل الكمية المطلوبة');
                 } else if (product != null) {
-                  storeData.addproductTable(amount, product, context);
-                  specials.changeProdutcSelected(false);
-                  product = null;
-                  controller.clear();
-                  amountController.text = '0';
-                  amount = 0;
+                  if (amount > product.amount && type != 'add') {
+                    Dialogs(context).warningDilalog2(
+                        msg: 'اقصى كمية يمكن صرفها ${product.amount}');
+                    return;
+                  } else if (type != 'add') {
+                    final p = storeData.productTableList.firstWhere(
+                        (e) => e.id == product.id,
+                        orElse: () => null);
+                    if (p != null) {
+                      if ((p.amount + amount) > product.amount) {
+                        Dialogs(context).warningDilalog2(
+                            msg: 'اقصى كمية يمكن صرفها ${product.amount}');
+                        return;
+                      } else {
+                        addtoTableMethod(context);
+                      }
+                    } else {
+                      addtoTableMethod(context);
+                    }
+                  } else {
+                    addtoTableMethod(context);
+                  }
                 } else {
                   Dialogs(context)
                       .warningDilalog2(msg: '!! برجاء اختيار منتج ع الأقل ');
@@ -391,6 +405,15 @@ class AddpPermissionScrean extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void addtoTableMethod(context) {
+    storeData.addproductTable(amount, product, context);
+    specials.changeProdutcSelected(false);
+    product = null;
+    controller.clear();
+    amountController.text = '0';
+    amount = 0;
   }
 
   Widget buildmoneyRow() {
@@ -421,21 +444,25 @@ class AddpPermissionScrean extends StatelessWidget {
                     ),
                   ],
                 ),
-                Visibility(
-                  visible: value.paid,
-                  child: Expanded(
-                    flex: 1,
-                    child: Container(
-                      height: 60,
-                      margin: EdgeInsets.fromLTRB(25, 0, 25, 0),
-                      child: TextField(
-                        textAlign: TextAlign.center,
-                        onChanged: (value) => paidMoney = value,
-                        decoration: InputDecoration(
-                            suffixIcon: Icon(Icons.monetization_on),
-                            hintText: 'المبلغ المدفوع',
-                            border: OutlineInputBorder()),
-                      ),
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    height: 60,
+                    margin: EdgeInsets.fromLTRB(25, 0, 25, 0),
+                    child: TextField(
+                      textAlign: TextAlign.center,
+                      onChanged: (v) {
+                        paidMoney = v;
+                        if (int.parse(paidMoney) < storeData.sum) {
+                          storeData.changepaid(false);
+                        } else {
+                          storeData.changepaid(true);
+                        }
+                      },
+                      decoration: InputDecoration(
+                          suffixIcon: Icon(Icons.monetization_on),
+                          hintText: 'المبلغ المدفوع',
+                          border: OutlineInputBorder()),
                     ),
                   ),
                 ),
@@ -451,9 +478,6 @@ class AddpPermissionScrean extends StatelessWidget {
                     width: 90,
                     borderRadius: 30.0,
                     showOnOff: true,
-                    onToggle: (val) {
-                      value.changepaid(val);
-                    },
                   ),
                 ),
               ],

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter_app/models/Back.dart';
 import 'package:flutter_app/models/Customer.dart';
 import 'package:flutter_app/models/Permission.dart';
 import 'package:flutter_app/models/category.dart';
@@ -293,4 +294,18 @@ class API {
         body: json.encode(permisions.toJson()));
     return response;
   }
+
+
+
+  // Backs
+
+
+  
+  static Future<List<Back>> getAllbacks() async {
+    final response = await http.get('$_BASE_URL/backs/all');
+    final body = utf8.decode(response.bodyBytes);
+    final parsed = json.decode(body).cast<Map<String, dynamic>>();
+    return parsed.map<Back>((back) => Back.fromJson(back)).toList();
+  }
+
 }

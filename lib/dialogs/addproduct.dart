@@ -463,21 +463,24 @@ class ProductDialog {
   updateamount(type, p) {
     formKey.currentState.save();
     storeData = Provider.of<StoreData>(context, listen: false);
-    storeData.sum-=(p.amount*p.sell_price);
-    p.amount = int.parse(amount.trim());
+
     if (type != 'add') {
       Product p2 = storeData.productList.firstWhere((e) => e.id == p.id);
 
       if (int.parse(amount) <= p2.amount) {
+        storeData.sum -= (p.amount * p.sell_price);
+        p.amount = int.parse(amount.trim());
         storeData.updateproductTable(p);
         Navigator.pop(context);
         // Dialogs(context).successDilalog("تم تعديل المنتج بنجاح");
       } else {
-         Navigator.pop(context);
+        Navigator.pop(context);
         Dialogs(context)
             .warningDilalog2(msg: 'اقصى كمية يمكن صرفها ${p2.amount}');
       }
     } else {
+      storeData.sum -= (p.amount * p.sell_price);
+      p.amount = int.parse(amount.trim());
       storeData.updateproductTable(p);
       Navigator.pop(context);
     }
@@ -493,10 +496,9 @@ class ProductDialog {
         msg: "هل انت متأكد من عملية الحذف؟",
         onpress: () async {
           storeData = Provider.of<StoreData>(context, listen: false);
-            storeData.deleteManyOfproductsTable(product);
-            Navigator.pop(context);
-            Dialogs(context).successDilalog("تم حذف المنتحات بنجاح");
-          
+          storeData.deleteManyOfproductsTable(product);
+          Navigator.pop(context);
+          Dialogs(context).successDilalog("تم حذف المنتحات بنجاح");
         });
   }
 }

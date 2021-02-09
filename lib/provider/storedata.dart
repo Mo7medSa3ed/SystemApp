@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_app/dialogs/dialogs.dart';
+import 'package:flutter_app/models/Back.dart';
 import 'package:flutter_app/models/Customer.dart';
 import 'package:flutter_app/models/Permission.dart';
 import 'package:flutter_app/models/product.dart';
@@ -15,6 +16,7 @@ class StoreData extends ChangeNotifier {
   List<Categorys> categoryList = [];
   List<Customer> customerList = [];
   List<Permission> permissionList = [];
+  List<Back> backs=[];
   double sum = 0.0;
   bool paid = false;
   changepaid(v) {
@@ -36,6 +38,10 @@ class StoreData extends ChangeNotifier {
 
   initUserList(userList) {
     this.userList = userList;
+  }
+
+  initbackList(backs) {
+    this.backs = backs;
   }
 
   initCategoryList(categoryList) {

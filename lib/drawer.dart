@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
 import 'package:flutter_app/screans/addpermission.dart';
+import 'package:flutter_app/screans/allbacks_screan.dart';
 import 'package:flutter_app/screans/allcategories_screan.dart';
 import 'package:flutter_app/screans/allcustomers_screan.dart';
 import 'package:flutter_app/screans/allpermissions_screan.dart';
@@ -53,6 +54,7 @@ class MainDrawer extends StatelessWidget {
             
             buildListTile(context, "اذن اضافة", Icons.home, AddpPermissionScrean(type: 'add',)),
             buildListTile(context, "اذن صرف", Icons.home, AddpPermissionScrean(type: 'lack',)),
+            buildListTile(context, "اذن مرتجعات", Icons.home, AllBacksScrean()),
           ],
         ),
       ),

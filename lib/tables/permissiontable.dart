@@ -3,9 +3,9 @@ import 'package:flutter_app/constants.dart';
 import 'package:flutter_app/models/Permission.dart';
 import 'package:flutter_app/provider/specials.dart';
 import 'package:flutter_app/provider/storedata.dart';
+import 'package:flutter_app/screans/permissiondetails.dart';
 import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
-
 
 class PermissionTable extends StatefulWidget {
   @override
@@ -17,17 +17,20 @@ class _PermissionTableState extends State<PermissionTable> {
   var _sortColumnIndex = -1;
   var _sortAscending = true;
   var cds;
-  bool login=true;
+  bool login = true;
   var _controller = TextEditingController();
   StoreData storeData;
   getData() {
     storeData = Provider.of<StoreData>(context, listen: true);
-    final list = login?storeData.permissionList.where((element) => element.type=='add').toList():
-    storeData.permissionList.where((element) => element.type=='lack').toList();
-    cds = Cds(
-        permissionList:list,
-        filterPermissionList: list,
-        context: context);
+    final list = login
+        ? storeData.permissionList
+            .where((element) => element.type == 'add')
+            .toList()
+        : storeData.permissionList
+            .where((element) => element.type == 'lack')
+            .toList();
+    cds =
+        Cds(permissionList: list, filterPermissionList: list, context: context);
   }
 
   void _sort<T>(
@@ -48,10 +51,7 @@ class _PermissionTableState extends State<PermissionTable> {
     });
   }
 
-
-
-
-Row buildmovetabs() {
+  Row buildmovetabs() {
     return Row(
       children: [
         Expanded(
@@ -61,15 +61,15 @@ Row buildmovetabs() {
             decoration: BoxDecoration(
                 border: Border(
                     bottom: BorderSide(
-                        color: login ? Kprimary : grey, width: login ? 4 : 0.7))),
+                        color: login ? Kprimary : grey,
+                        width: login ? 4 : 0.7))),
             child: InkWell(
               onTap: () {
-               if(login==false) 
-               {setState(() {
-                  login = !login;
-                });
-         
-              }
+                if (login == false) {
+                  setState(() {
+                    login = !login;
+                  });
+                }
               },
               child: Text(
                 'الإضافة',
@@ -87,15 +87,16 @@ Row buildmovetabs() {
               decoration: BoxDecoration(
                   border: Border(
                       bottom: BorderSide(
-                          color: login ? grey : Kprimary, width: login ? 0.7 : 4))),
+                          color: login ? grey : Kprimary,
+                          width: login ? 0.7 : 4))),
               child: InkWell(
                 onTap: () {
-                  if(login){
-                  setState(() {
-                    login = !login;
-                  });
-         
-                }},
+                  if (login) {
+                    setState(() {
+                      login = !login;
+                    });
+                  }
+                },
                 child: Text(
                   'الصرف',
                   style: TextStyle(
@@ -110,20 +111,6 @@ Row buildmovetabs() {
     );
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   @override
   Widget build(BuildContext context) {
     getData();
@@ -132,18 +119,7 @@ Row buildmovetabs() {
         width: double.infinity,
         child: Column(
           children: [
-
-            
-
-buildmovetabs(),
-
-
-
-
-
-
-
-
+            buildmovetabs(),
             Container(
               width: double.infinity,
               child: PaginatedDataTable(
@@ -163,7 +139,8 @@ buildmovetabs(),
                     child: buildTextField(),
                   ),
                 ),
-                sortColumnIndex: _sortColumnIndex == -1 ? null : _sortColumnIndex,
+                sortColumnIndex:
+                    _sortColumnIndex == -1 ? null : _sortColumnIndex,
                 sortAscending: _sortAscending,
                 showCheckboxColumn: false,
                 source: cds,
@@ -176,14 +153,13 @@ buildmovetabs(),
                   ),
                   DataColumn(
                     label: Text('الاسم'),
-                    onSort: (columnIndex, ascending) =>
-                        _sort<String>((d) => d.user.username, columnIndex, ascending),
+                    onSort: (columnIndex, ascending) => _sort<String>(
+                        (d) => d.user.username, columnIndex, ascending),
                   ),
-                
                   DataColumn(
                     label: Text('تاريخ الاشتراك'),
-                    onSort: (columnIndex, ascending) =>
-                        _sort<String>((d) => d.created_at, columnIndex, ascending),
+                    onSort: (columnIndex, ascending) => _sort<String>(
+                        (d) => d.created_at, columnIndex, ascending),
                   ),
                 ],
               ),
@@ -241,13 +217,13 @@ class Cds extends DataTableSource {
     final permission = permissionList[index];
     return DataRow.byIndex(
       index: index,
+      onSelectChanged: (v)=>Navigator.of(context).push(MaterialPageRoute(builder: (_)=>PermisionDetailsScrean(permission))),
       cells: [
         DataCell(Text(permission.id.toString())),
         DataCell(Text(permission.user.username)),
         DataCell(Text(permission.created_at != null
             ? permission.created_at.substring(0, 10)
             : "")),
-  
       ],
     );
   }

@@ -20,6 +20,7 @@ class Usersdialog {
   final formKey = GlobalKey<FormState>();
 
   addUser({User user}) {
+     storeData = Provider.of<StoreData>(context, listen: false);
     SizeConfig().init(context);
     return Alert(
         context: context,
