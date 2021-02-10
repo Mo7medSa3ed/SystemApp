@@ -308,4 +308,14 @@ class API {
     return parsed.map<Back>((back) => Back.fromJson(back)).toList();
   }
 
+
+  static Future<http.Response> addbackPermission(Back back) async {
+    final response = await http.post('$_BASE_URL/backs/all',
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(back.toJson()));
+        return response;
+  }
+
 }

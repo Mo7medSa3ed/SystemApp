@@ -6,6 +6,7 @@ import 'package:flutter_app/dialogs/addcustomer.dart';
 import 'package:flutter_app/dialogs/dialogs.dart';
 import 'package:flutter_app/drawer.dart';
 import 'package:flutter_app/models/Customer.dart';
+import 'package:flutter_app/models/CustomerBackeup.dart';
 import 'package:flutter_app/models/Permission.dart';
 import 'package:flutter_app/models/product.dart';
 import 'package:flutter_app/models/store.dart';
@@ -39,7 +40,6 @@ class AddpPermissionScrean extends StatelessWidget {
   Product product;
 
   var controller = TextEditingController();
-  
 
   var amountController = TextEditingController(text: '0');
   var scrollController = ScrollController();
@@ -112,14 +112,6 @@ class AddpPermissionScrean extends StatelessWidget {
             height: getProportionateScreenHeight(15),
           ),
           row(context),
-          SizedBox(
-            height: getProportionateScreenHeight(15),
-          ),
-          buildDropDown(
-            expanded: expanded,
-            headertext: 'اختر مخزن',
-            i: 1,
-          ),
           SizedBox(
             height: getProportionateScreenHeight(15),
           ),
@@ -508,13 +500,19 @@ class AddpPermissionScrean extends StatelessWidget {
       List<ProductBackup> items = storeData.productTableList
           .map((e) => ProductBackup(productId: e.id, amount: e.amount))
           .toList();
-      Permission p = Permission(
-          customerName: customer.name,
+
+      CustomerBackeup c = CustomerBackeup(
+          type: customer.type,
+          address: customer.address,
           customerId: customer.id,
+          name: customer.name,
+          phone: customer.phone);
+      Permission p = Permission(
+        
+        customer: c,
           paidMoney: sw ? int.parse(paidMoney.trim()) : 0,
           paidType: sw ? 'نقدى' : 'آجل',
           type: type,
-          storeId: store.id,
           user: us,
           items: items);
       final res = await API.addPermission(p);

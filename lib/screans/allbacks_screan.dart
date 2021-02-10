@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/api/api.dart';
 import 'package:flutter_app/constants.dart';
 import 'package:flutter_app/drawer.dart';
-import 'package:flutter_app/models/Back.dart';
+import 'package:flutter_app/models/Permission.dart';
 import 'package:flutter_app/provider/storedata.dart';
 import 'package:flutter_app/tables/BackTable.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -25,11 +25,11 @@ class AllBacksScrean extends StatelessWidget {
            
           ),
           drawer: MainDrawer(),
-          body: FutureBuilder<List<Back>>(
-            future: API.getAllbacks(),
+          body: FutureBuilder<List<Permission>>(
+            future: API.getAllpermissions(),
             builder: (ctx, snap) {
               if (snap.hasData) {
-                storeData.initbackList(snap.data);
+                storeData.initPermissionList(snap.data);
                 return BackTable();
               } else {
                 return SpinKitCircle(

@@ -151,10 +151,31 @@ class _PermissionTableState extends State<PermissionTable> {
                     onSort: (columnIndex, ascending) =>
                         _sort<num>((d) => d.id, columnIndex, ascending),
                   ),
+                 
                   DataColumn(
-                    label: Text('الاسم'),
+                    label: Text('اسم العميل'),
                     onSort: (columnIndex, ascending) => _sort<String>(
-                        (d) => d.user.username, columnIndex, ascending),
+                        (d) => d.customerName, columnIndex, ascending),
+                  ),
+                   DataColumn(
+                    label: Text('المبلغ الكلى'),
+                    onSort: (columnIndex, ascending) => _sort<num>(
+                        (d) => d.sum, columnIndex, ascending),
+                  ),
+                     DataColumn(
+                    label: Text('المبلغ المدفوع'),
+                    onSort: (columnIndex, ascending) => _sort<num>(
+                        (d) => d.paidMoney, columnIndex, ascending),
+                  ),
+                     DataColumn(
+                    label: Text('نوع الدفع'),
+                    onSort: (columnIndex, ascending) => _sort<String>(
+                        (d) => d.paidType ,columnIndex, ascending),
+                  ),
+                    DataColumn(
+                    label: Text('اسم العامل'),
+                    onSort: (columnIndex, ascending) => _sort<String>(
+                        (d) => d.user.username,columnIndex, ascending),
                   ),
                   DataColumn(
                     label: Text('تاريخ الاشتراك'),
@@ -198,7 +219,7 @@ class _PermissionTableState extends State<PermissionTable> {
                           cds.filter("-1");
                           s.changeIsEmpty(true);
                         }),
-                hintText: 'بحث باسم الفئة ...',
+                hintText: 'بحث باسم العميل ...',
                 border: InputBorder.none),
           );
         });
@@ -220,6 +241,10 @@ class Cds extends DataTableSource {
       onSelectChanged: (v)=>Navigator.of(context).push(MaterialPageRoute(builder: (_)=>PermisionDetailsScrean(permission))),
       cells: [
         DataCell(Text(permission.id.toString())),
+        DataCell(Text(permission.customerName.toString())),
+        DataCell(Center(child: Text(permission.sum.toString()))),
+        DataCell(Center(child: Text(permission.paidMoney.toString()))),
+        DataCell(Text(permission.paidType)),
         DataCell(Text(permission.user.username)),
         DataCell(Text(permission.created_at != null
             ? permission.created_at.substring(0, 10)
@@ -259,7 +284,7 @@ class Cds extends DataTableSource {
     }
     if (value.toString().trim().isNotEmpty) {
       List<Permission> l = filterPermissionList
-          .where((element) => element.user.username.contains(value))
+          .where((element) => element.customerName.contains(value))
           .toList();
       permissionList = l;
       notifyListeners();

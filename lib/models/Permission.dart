@@ -1,10 +1,13 @@
+import 'package:flutter_app/models/CustomerBackeup.dart';
+
 class Permission {
   num id;
   String type;
-  num storeId;
   UserBackup user;
   String created_at;
+  CustomerBackeup customer;
   num sum;
+  num discount;
   num paidMoney;
   String customerName;
   num customerId;
@@ -15,13 +18,12 @@ class Permission {
   Permission(
       {this.backs,
       this.created_at,
-      this.customerId,
-      this.customerName,
+      this.customer,
       this.id,
       this.items,
+      this.discount,
       this.paidMoney,
       this.paidType,
-      this.storeId,
       this.sum,
       this.type,
       this.user});
@@ -29,36 +31,35 @@ class Permission {
   factory Permission.fromJson(Map<String, dynamic> json) => Permission(
         id: json['id'],
         type: json['type'],
-        storeId: json['storeId'],
         user: UserBackup.fromJson(json['user']),
         created_at: json['created_at'],
         sum: json['sum'],
+        discount: json['discount'],
         paidMoney: json['paidMoney'],
-        customerName: json['customerName'],
-        customerId: json['customerId'],
+        customer:CustomerBackeup.fromJson( json['customer']),
         paidType: json['paidType'],
-        items: List<ProductBackup>.from( json['items'].map((e) => ProductBackup.fromJson(e))),
-        backs: List<BacksId>.from(json['backs'].map( (e) => BacksId.fromJson(e))),
+        items: List<ProductBackup>.from(
+            json['items'].map((e) => ProductBackup.fromJson(e))),
+        backs:
+            List<BacksId>.from(json['backs'].map((e) => BacksId.fromJson(e))),
       );
   Map<String, dynamic> toJsonForUpdate() => {
         'id': id,
         'type': type,
-        'storeId': storeId,
         'user': user.toJsonForUpdate(),
         'paidMoney': paidMoney,
-        'customerName': customerName,
-        'customerId': customerId,
+        'discount': discount,
+        'customer': customer.toJsonForUpdate(),
         'paidType': paidType,
         'items': items.map((e) => e.toJsonForUpdate()).toList(),
       };
 
   Map<String, dynamic> toJson() => {
         'type': type,
-        'storeId': storeId,
         'user': user.toJson(),
         'paidMoney': paidMoney,
-        'customerName': customerName,
-        'customerId': customerId,
+         'discount': discount,
+        'customer': customer.toJson(),
         'paidType': paidType,
         'items': items.map((e) => e.toJsonForUpdate()).toList(),
       };
@@ -71,6 +72,7 @@ class ProductBackup {
   num sell_price;
   num buy_price;
   num categoryId;
+  num storeid;
   num amount_before;
   num amount_after;
   num amount;
@@ -83,6 +85,7 @@ class ProductBackup {
       this.buy_price,
       this.categoryId,
       this.created_at,
+      this.storeid,
       this.id,
       this.productId,
       this.productName,
@@ -95,6 +98,7 @@ class ProductBackup {
         sell_price: json['sell_price'],
         buy_price: json['buy_price'],
         categoryId: json['categoryId'],
+        storeid: json['storeid'],
         amount_before: json['amount_before'],
         amount_after: json['amount_after'],
         amount: json['amount'],
@@ -107,6 +111,7 @@ class ProductBackup {
         'productId': productId,
         'sell_price': sell_price,
         'buy_price': buy_price,
+        'storeid': storeid,
         'categoryId': categoryId,
         'amount_before': amount_before,
         'amount_after': amount_after,
@@ -118,6 +123,7 @@ class ProductBackup {
         'productId': productId,
         'sell_price': sell_price,
         'buy_price': buy_price,
+        'storeid': storeid,
         'categoryId': categoryId,
         'amount_before': amount_before,
         'amount_after': amount_after,

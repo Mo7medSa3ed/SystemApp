@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_app/api/api.dart';
 import 'package:flutter_app/constants.dart';
@@ -25,18 +24,21 @@ class _SplashScreanState extends State<SplashScrean> {
     getData();
   }
 
-
-
   getData() async {
     storeData = Provider.of<StoreData>(context, listen: false);
     prfs = await SharedPreferences.getInstance();
 
     await API.getAllstores().then((value) => storeData.initStoreList(value));
     await API.getAllUsers().then((value) => storeData.initUserList(value));
-    await API.getAllCategories().then((value) => storeData.initCategoryList(value));
-    await API.getAllcustomers().then((value) => storeData.initcustomerList(value));
-
-    
+    await API
+        .getAllCategories()
+        .then((value) => storeData.initCategoryList(value));
+    await API
+        .getAllcustomers()
+        .then((value) => storeData.initcustomerList(value));
+    await API
+        .getAllProducts()
+        .then((value) => storeData.initProductList(value));
 
     if (prfs.getString('user') != null) {
       User user = await getUserFromPrfs();

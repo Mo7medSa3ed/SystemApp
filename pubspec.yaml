@@ -37,6 +37,8 @@ dependencies:
   filter_list: ^0.0.5
   autocomplete_textfield: ^1.7.3
   flutter_switch: ^0.2.0
+  date_range_picker: ^1.0.6
+  syncfusion_flutter_charts: ^18.4.42
 
 dev_dependencies:
   flutter_test:

@@ -41,8 +41,8 @@ class PermisionDetailsScrean extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  card(context, true, 'اسم المخزن :\t',
-                      getStoreName(context: context, storeid: p.storeId)),
+                  card(context, true, 'اسم المخزن :\t','اتحذفت'
+                    ),
                   SizedBox(
                     height: getProportionateScreenHeight(15),
                   ),

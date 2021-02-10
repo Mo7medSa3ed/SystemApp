@@ -1,7 +1,10 @@
 import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app/api/api.dart';
 import 'package:flutter_app/constants.dart';
+import 'package:flutter_app/dialogs/dialogs.dart';
 import 'package:flutter_app/models/Back.dart';
+import 'package:flutter_app/models/Permission.dart';
 import 'package:flutter_app/provider/specials.dart';
 import 'package:flutter_app/provider/storedata.dart';
 import 'package:flutter_app/size_config.dart';
@@ -21,15 +24,15 @@ class _StoreTableState extends State<BackTable> {
   var pds;
   var _controller = TextEditingController();
   var controller = TextEditingController();
-  Back back = null;
+  Permission p;
   StoreData storeData;
   getData() {
-    List<BackProduct> list = back.products;
+    List<ProductBackup> list = p.items;
     pds = PDS(
         context: context,
         productList: list,
         filterproductList: list,
-        store: back.storename);
+        permission: p);
   }
 
   @override
@@ -59,14 +62,14 @@ class _StoreTableState extends State<BackTable> {
 
   @override
   Widget build(BuildContext context) {
-    back != null ? getData() : null;
+    p != null ? getData() : null;
     return SingleChildScrollView(
       child: Container(
         width: double.infinity,
         child: Column(
           children: [
             typeHead(context),
-            back != null
+            p != null
                 ? Column(
                     children: [
                       PaginatedDataTable(
@@ -147,7 +150,10 @@ class _StoreTableState extends State<BackTable> {
                           DataColumn(
                             label: Text('المخزن'),
                             onSort: (columnIndex, ascending) => _sort<String>(
-                                (d) => back.storename, columnIndex, ascending),
+                                (d) => getStoreName(
+                                    context: context, storeid: d.product.storeid),
+                                columnIndex,
+                                ascending),
                           ),
                           DataColumn(
                             label: Text('تاريخ الإٍشتراك'),
@@ -164,7 +170,7 @@ class _StoreTableState extends State<BackTable> {
                         child: buildRaisedButton(
                             color: Kprimary,
                             text: 'انشاء الإذن',
-                            pressed: () {}),
+                            pressed: () async => await pds.makeBackPer()),
                       )
                     ],
                   )
@@ -178,39 +184,37 @@ class _StoreTableState extends State<BackTable> {
   Widget typeHead(context) {
     return Padding(
       padding: const EdgeInsets.all(12.0),
-      child: AutoCompleteTextField<Back>(
+      child: AutoCompleteTextField<Permission>(
         controller: controller,
         clearOnSubmit: false,
-        suggestions: storeData.backs.toSet().toList(),
+        suggestions: storeData.permissionList,
         decoration: InputDecoration(
             contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-            prefixIcon: back != null
-                ? Padding(
-                    padding: const EdgeInsets.all(4.0),
-                    child: IconButton(
-                      icon: Icon(Icons.close),
-                      onPressed: () => controller.clear(),
-                    ),
-                  )
-                : null,
+            prefixIcon: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: IconButton(
+                icon: Icon(Icons.close),
+                onPressed: () => controller.clear(),
+              ),
+            ),
             filled: true,
             fillColor: white,
             hintText: 'ابحث برقم الفاتورة....',
             border: OutlineInputBorder()),
-        itemFilter: (Back p, String s) {
-          return p.bill_id == int.parse(s.trim());
+        itemFilter: (Permission b, String s) {
+          return b.id == int.parse(s.trim());
         },
-        itemSubmitted: (Back p) {
-          controller.text = p.bill_id.toString();
+        itemSubmitted: (Permission pb) {
+          controller.text = pb.id.toString();
           setState(() {
-            back = p;
+            p = pb;
           });
         },
         itemSorter: (a, b) => a.toString().compareTo(b.toString()),
-        itemBuilder: (_, Back item) => Container(
+        itemBuilder: (_, Permission item) => Container(
           padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
           child: Text(
-            item.bill_id.toString(),
+            item.id.toString(),
             style: TextStyle(fontSize: 16),
           ),
         ),
@@ -254,27 +258,33 @@ class _StoreTableState extends State<BackTable> {
 }
 
 class PDS extends DataTableSource {
-  List<BackProduct> productList;
-  List<BackProduct> filterproductList;
-  String store;
+  List<ProductBackup> productList;
+  List<ProductBackup> filterproductList;
+  Permission permission;
   BuildContext context;
 
-  PDS({this.productList, this.context, this.filterproductList, this.store});
+  PDS(
+      {this.productList,
+      this.context,
+      this.filterproductList,
+      this.permission});
   final formKey = GlobalKey<FormState>();
   @override
   DataRow getRow(int index) {
     final product = productList[index];
     return DataRow.byIndex(
       cells: [
-        DataCell(Text(product.product.productId.toString())),
-        DataCell(Text(product.product.productName)),
-        DataCell(Text(
-            getCategoryname(context: context, id: product.product.categoryId))),
-        DataCell(Center(child: Text(product.product.sell_price.toString()))),
-        DataCell(Center(child: Text(product.product.buy_price.toString()))),
+        DataCell(Text(product.productId.toString())),
+        DataCell(Text(product.productName)),
+        DataCell(
+            Text(getCategoryname(context: context, id: product.categoryId))),
+        DataCell(Center(child: Text(product.sell_price.toString()))),
+        DataCell(Center(child: Text(product.buy_price.toString()))),
         DataCell(Center(child: Text(product.amount.toString())),
             showEditIcon: true, onTap: () => updateAmount(product)),
-        DataCell(Center(child: Text(store))),
+        DataCell(Center(
+            child: Text(
+                getStoreName(context: context, storeid: product.storeid)))),
         DataCell(Text(product.created_at != null
             ? product.created_at.substring(0, 10)
             : "")),
@@ -295,7 +305,7 @@ class PDS extends DataTableSource {
   int get selectedRowCount => 0;
 
   void _sort<T>(
-      Comparable<T> Function(BackProduct d) getField, bool ascending) {
+      Comparable<T> Function(ProductBackup d) getField, bool ascending) {
     productList.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
@@ -306,7 +316,7 @@ class PDS extends DataTableSource {
     notifyListeners();
   }
 
-  updateAmount(BackProduct p) {
+  updateAmount(ProductBackup p) {
     SizeConfig().init(context);
     String amount = '0';
     return Alert(
@@ -371,12 +381,37 @@ class PDS extends DataTableSource {
       return;
     }
     if (value.toString().trim().isNotEmpty) {
-      List<BackProduct> l = filterproductList
-          .where((element) => element.product.productName.contains(value))
+      List<ProductBackup> l = filterproductList
+          .where((element) => element.productName.contains(value))
           .toList();
       productList = l;
       notifyListeners();
       return;
     }
+  }
+
+  makeBackPer() async {
+;
+
+
+     showDialogWidget(context);
+    final storeData = Provider.of<StoreData>(context, listen: false);
+    Back b = Back(
+        bill_id: permission.id,
+        username: storeData.loginUser.username,
+        storename: 'asd',
+        products: productList
+            .map((e) => BackProduct(
+                product: e,
+                amount: e.amount))
+            .toList());
+    final res = await API.addbackPermission(b);
+    if (res.statusCode == 200) {
+      Navigator.pop(context);
+      Dialogs(context).successDilalog("تم عمل الإذن بنجاح ");
+    } else {
+      Navigator.pop(context);
+      Dialogs(context).errorDilalog();
+    } 
   }
 }
