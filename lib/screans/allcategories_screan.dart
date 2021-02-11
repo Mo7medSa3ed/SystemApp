@@ -28,12 +28,12 @@ class AllCategoriesScrean extends StatelessWidget {
                 IconButton(
                     icon: Icon(
                       Icons.add_circle_outline,
-                      size: 30,
+                      size: 25,
                     ),
                     onPressed: () =>  CategoryDialog(context: context).addcategory()),
-                SizedBox(
-                  width: 15,
-                ),
+              /*   SizedBox(
+                  width: 5,
+                ), */
               ],
             ),
             drawer: MainDrawer(),

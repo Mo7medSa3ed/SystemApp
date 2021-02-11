@@ -86,7 +86,7 @@ class Usersdialog {
         ),
         buttons: [
           DialogButton(
-                        height: getProportionateScreenHeight(40),
+                        height: getProportionateScreenHeight(50),
 
             color: Kprimary,
             onPressed: () async {
@@ -343,7 +343,7 @@ class Usersdialog {
         ),
         buttons: [
           DialogButton(
-                        height: getProportionateScreenHeight(40),
+                        height: getProportionateScreenHeight(50),
 
             color: Kprimary,
             onPressed: () async {

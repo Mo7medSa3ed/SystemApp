@@ -65,8 +65,8 @@ class _StoreTableState extends State<PerTable> {
             children: [
               Expanded(
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  height: getProportionateScreenHeight(40),
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  height: getProportionateScreenHeight(55),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                       color: greyw, borderRadius: BorderRadius.circular(10)),
@@ -124,10 +124,11 @@ class _StoreTableState extends State<PerTable> {
             ),
             DataColumn(
               numeric: true,
-              label: Text('سعر البيع '),
+              label: Text(widget.type=='add'?'سعر الشراء':'سعر البيع'),
               onSort: (columnIndex, ascending) =>
                   _sort<num>((d) => d.sell_price, columnIndex, ascending),
             ),
+          
             DataColumn(
               label: Text('المخزن'),
               onSort: (columnIndex, ascending) => _sort<String>(
@@ -210,7 +211,7 @@ class PDS extends DataTableSource {
         DataCell(
             Text(getCategoryname(context: context, id: product.categoryId))),
         DataCell(Center(child: Text(product.amount.toString()))),
-        DataCell(Center(child: Text(product.sell_price.toString()))),
+        DataCell(Center(child: Text(type=='add'?product.buy_price.toString():product.sell_price.toString()))),
         DataCell(
             Text(getStoreName(context: context, storeid: product.storeid))),
         DataCell(Center(

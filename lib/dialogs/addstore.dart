@@ -77,7 +77,7 @@ class Storesdialog {
         buttons: [
           DialogButton(
             color: Kprimary,
-            height: getProportionateScreenHeight(40),
+            height: getProportionateScreenHeight(50),
             onPressed:()async {
             store!=null?await update(store):await add();
             storename=null;

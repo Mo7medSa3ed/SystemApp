@@ -198,9 +198,11 @@ class StoreData extends ChangeNotifier {
           num a = (p.amount * product.sell_price);
           sum = sum - a;
           p.amount = (p.amount + amount);
+          p.discount=product.discount;
           updateproductTable(p);
         }
       } else {
+        p.discount=product.discount;
         productTableList.add(product);
         sum += (amount * product.sell_price);
       }
@@ -209,7 +211,6 @@ class StoreData extends ChangeNotifier {
       productTableList.add(product);
       sum += (amount * product.sell_price);
     }
-    print(sum);
     notifyListeners();
   }
 

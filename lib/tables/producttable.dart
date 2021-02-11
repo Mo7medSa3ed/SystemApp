@@ -112,8 +112,8 @@ void _openFilterDialog() async {
             children: [
               Expanded(
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  height: getProportionateScreenHeight(40),
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  height: getProportionateScreenHeight(55),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                       color: greyw, borderRadius: BorderRadius.circular(10)),

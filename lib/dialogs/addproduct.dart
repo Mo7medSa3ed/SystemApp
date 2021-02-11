@@ -114,7 +114,7 @@ class ProductDialog {
         buttons: [
           DialogButton(
             color: Kprimary,
-            height: getProportionateScreenHeight(40),
+            height: getProportionateScreenHeight(50),
             onPressed: () async {
               p != null ? await update(p) : await add();
             },
@@ -131,6 +131,8 @@ class ProductDialog {
 
   Widget autoComplete() {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Expanded(
           child: AutoCompleteTextField<Categorys>(
@@ -139,7 +141,7 @@ class ProductDialog {
             suggestions: categoriesList,
             decoration: InputDecoration(
                 contentPadding:
-                    EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                    EdgeInsets.symmetric(vertical: getProportionateScreenHeight(11), horizontal: getProportionateScreenWidth(8)),
                 filled: true,
                 fillColor: white,
                 hintText: 'ابحث عن فئة ....',
@@ -161,23 +163,26 @@ class ProductDialog {
           ),
         ),
 
-        Container(
-            margin: EdgeInsets.only(right: 5.0, bottom: 1),
-            height: 64,
-            width: 78,
-            alignment: Alignment.center,
+
+       /* IconButton(icon: Icon(Icons.add_box_rounded,size: 30,color: Kprimary,), onPressed: (){}) */
+
+
+          Container(
+          height: getProportionateScreenHeight(45),
+                    width: getProportionateScreenWidth(55),
+            margin: EdgeInsets.only(right: 4),
             child: RaisedButton(
-                color: Kprimary,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4)),
-                child: Center(
-                    child: Icon(
-                  Icons.add,
-                  size: 30,
-                  color: white,
-                )),
-                onPressed: () => addcategory())),
-        //
+               color: Kprimary,
+               shape: RoundedRectangleBorder(
+                   borderRadius: BorderRadius.circular(4)),
+               child: Icon(
+                 Icons.add,
+                 size: 18,
+                 color: white,
+               ),
+               onPressed: () => addcategory()),
+          ), 
+        
       ],
     );
   }
@@ -201,8 +206,6 @@ class ProductDialog {
               isExpanded: expanded,
               headerBuilder: (BuildContext context, bool isExpanded) =>
                   new Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 0, vertical: 5),
                       child: ListTile(
                           trailing: value
                               ? storename != null
@@ -289,7 +292,7 @@ class ProductDialog {
         buttons: [
           DialogButton(
             color: Kprimary,
-            height: getProportionateScreenHeight(40),
+            height: getProportionateScreenHeight(50),
             onPressed: () async {
               await addcategorys();
             },
@@ -497,7 +500,7 @@ class ProductDialog {
         ),
         buttons: [
           DialogButton(
-            height: getProportionateScreenHeight(40),
+            height: getProportionateScreenHeight(50),
             color: Kprimary,
             onPressed: () async {
               await moveToStore(produscts);
@@ -548,7 +551,7 @@ class ProductDialog {
         ),
         buttons: [
           DialogButton(
-            height: getProportionateScreenHeight(40),
+            height: getProportionateScreenHeight(50),
             color: Kprimary,
             onPressed: () => updateamount(type, p),
             child: Center(

@@ -77,7 +77,7 @@ class CustomerDialog {
         buttons: [
           DialogButton(
             color: Kprimary,
-            height: getProportionateScreenHeight(40),
+            height: getProportionateScreenHeight(50),
             onPressed: () async {
               customer != null ? await update(customer) : await add();
               customer = null;

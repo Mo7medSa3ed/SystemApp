@@ -76,7 +76,7 @@ class _StoreTableState extends State<BackTableDetails> {
           header: Container(
             width: double.infinity,
             padding: EdgeInsets.symmetric(horizontal: 20),
-            height: getProportionateScreenHeight(40),
+            height: getProportionateScreenHeight(55),
             alignment: Alignment.center,
             decoration: BoxDecoration(
                 color: greyw, borderRadius: BorderRadius.circular(10)),

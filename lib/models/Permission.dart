@@ -7,7 +7,7 @@ class Permission {
   String created_at;
   CustomerBackeup customer;
   num sum;
-  num discount;
+ 
   num paidMoney;
   String paidType;
   List<ProductBackup> items;
@@ -19,7 +19,7 @@ class Permission {
       this.customer,
       this.id,
       this.items,
-      this.discount,
+   
       this.paidMoney,
       this.paidType,
       this.sum,
@@ -32,7 +32,7 @@ class Permission {
         user: UserBackup.fromJson(json['user']),
         created_at: json['created_at'],
         sum: json['sum'],
-        discount: json['discount'],
+     
         paidMoney: json['paidMoney'],
         customer:CustomerBackeup.fromJson( json['customer']),
         paidType: json['paidType'],
@@ -57,7 +57,7 @@ class Permission {
         'type': type,
         'user': user.toJson(),
         'paidMoney': paidMoney,
-         'discount': discount,
+        
         'customer': customer.toJson(),
         'paidType': paidType,
         'items': items.map((e) => e.toJsonForUpdate()).toList(),
@@ -72,6 +72,7 @@ class ProductBackup {
   num buy_price;
   num categoryId;
   num storeid;
+   num discount;
   num amount_before;
   num amount_after;
   num amount;
@@ -85,6 +86,7 @@ class ProductBackup {
       this.categoryId,
       this.created_at,
       this.storeid,
+         this.discount,
       this.id,
       this.productId,
       this.productName,
@@ -97,6 +99,7 @@ class ProductBackup {
         sell_price: json['sell_price'],
         buy_price: json['buy_price'],
         categoryId: json['categoryId'],
+           discount: json['discount'],
         storeid: json['storeid'],
         amount_before: json['amount_before'],
         amount_after: json['amount_after'],
@@ -111,6 +114,7 @@ class ProductBackup {
         'sell_price': sell_price,
         'buy_price': buy_price,
         'storeid': storeid,
+         'discount': discount,
         'categoryId': categoryId,
         'amount_before': amount_before,
         'amount_after': amount_after,
@@ -123,6 +127,7 @@ class ProductBackup {
         'sell_price': sell_price,
         'buy_price': buy_price,
         'storeid': storeid,
+         'discount': discount,
         'categoryId': categoryId,
         'amount_before': amount_before,
         'amount_after': amount_after,

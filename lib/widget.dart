@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_app/constants.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/provider/storedata.dart';
+import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -24,6 +25,7 @@ TextFormField buildTextFormField(
     maxLength:keyboardType==TextInputType.number?9:keyboardType==TextInputType.phone?11:null,
     inputFormatters: keyboardType==TextInputType.number?[FilteringTextInputFormatter.digitsOnly]:null,
     decoration: InputDecoration(
+       contentPadding: EdgeInsets.symmetric(vertical: getProportionateScreenHeight(11),horizontal:getProportionateScreenWidth(8) ),
         border: OutlineInputBorder(),
         labelText: label,
         hintText: hint,

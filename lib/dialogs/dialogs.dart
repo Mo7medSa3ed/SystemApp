@@ -35,6 +35,7 @@ class Dialogs {
        content:Container(width:MediaQuery.of(context).size.width* 0.60,) ,
       buttons: [
         DialogButton(
+                height: getProportionateScreenHeight(50),
           color: red,
           child: Text(
             "لا",
@@ -44,6 +45,7 @@ class Dialogs {
           width: getProportionateScreenWidth(120),
         ),
         DialogButton(
+                height: getProportionateScreenHeight(50),
           child: Text(
             "نعم",
             style: TextStyle(color: white, fontSize: 16),
@@ -63,6 +65,7 @@ class Dialogs {
        content:Container(width:MediaQuery.of(context).size.width* 0.60,) ,
       buttons: [
         DialogButton(
+                height: getProportionateScreenHeight(50),
           child: Text(
             "تم",
             style: TextStyle(color: white, fontSize: 16),
@@ -82,6 +85,7 @@ class Dialogs {
        content:Container(width:MediaQuery.of(context).size.width* 0.60,) ,
       buttons: [
         DialogButton(
+                height: getProportionateScreenHeight(50),
           child: Text(
             "تم",
             style: TextStyle(color: white, fontSize: 16),
@@ -101,6 +105,7 @@ warningDilalog2({String msg}) async {
        content:Container(width:MediaQuery.of(context).size.width * 0.60,) ,
       buttons: [
         DialogButton(
+                height: getProportionateScreenHeight(50),
           child: Text(
             "خروج",
             style: TextStyle(color: white, fontSize: 16),

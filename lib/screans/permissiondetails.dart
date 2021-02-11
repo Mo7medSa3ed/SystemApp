@@ -180,7 +180,7 @@ class PermisionDetailsScrean extends StatelessWidget {
         buttons: [
           DialogButton(
             color: Kprimary,
-            height: getProportionateScreenHeight(40),
+            height: getProportionateScreenHeight(50),
             onPressed: () async => await paid(context,p),
             child: Center(
               child: Text(

@@ -130,8 +130,8 @@ class _PermissionTableState extends State<PermissionTable> {
                   });
                 },
                 header: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  height: getProportionateScreenHeight(40),
+                  padding: EdgeInsets.symmetric(horizontal: 10),
+                  height: getProportionateScreenHeight(55),
                   width: double.infinity,
                   decoration: BoxDecoration(
                       color: greyw, borderRadius: BorderRadius.circular(10)),
@@ -172,11 +172,7 @@ class _PermissionTableState extends State<PermissionTable> {
                     onSort: (columnIndex, ascending) => _sort<String>(
                         (d) => d.paidType ,columnIndex, ascending),
                   ),
-                    DataColumn(
-                    label: Text('الخصم'),
-                    onSort: (columnIndex, ascending) => _sort<num>(
-                        (d) => d.discount ,columnIndex, ascending),
-                  ),
+                
                     DataColumn(
                     label: Text('اسم العامل'),
                     onSort: (columnIndex, ascending) => _sort<String>(
@@ -255,7 +251,6 @@ class Cds extends DataTableSource {
         DataCell(Center(child: Text((permission.sum-permission.paidMoney).toString()))),
         DataCell(Center(child: Text(permission.paidMoney.toString()))),
         DataCell(Text(permission.paidType)),
-        DataCell(Center(child: Text(permission.discount.toString()))),
         DataCell(Text(permission.user.username)),
         DataCell(Center(child: Text(permission.backs.length.toString()+' مرة'))),
         DataCell(Text(permission.created_at != null

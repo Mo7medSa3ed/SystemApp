@@ -55,7 +55,7 @@ class CategoryDialog {
         buttons: [
           DialogButton(
             color: Kprimary,
-            height: getProportionateScreenHeight(40),
+            height: getProportionateScreenHeight(50),
             onPressed:()async {
             category!=null?await update(category):await add();
             category=null;

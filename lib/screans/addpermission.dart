@@ -41,7 +41,7 @@ class AddpPermissionScrean extends StatelessWidget {
   num finalPrice = 0.0;
   bool expanded = false;
   String paidMoney;
-  String discount;
+  String discount = '0';
   Product product;
   List<Product> productList = [];
   var controller = TextEditingController();
@@ -99,7 +99,7 @@ class AddpPermissionScrean extends StatelessWidget {
               builder: (ctx, snap) {
                 if (snap.hasData) {
                   productList = snap.data;
-                  print("sadasdasdasd");
+
                   return Body(context);
                 } else {
                   return SpinKitCircle(
@@ -114,7 +114,7 @@ class AddpPermissionScrean extends StatelessWidget {
 
   Widget Body(context) {
     return Container(
-      padding: EdgeInsets.fromLTRB(8, 0, 8, 8),
+      padding: EdgeInsets.fromLTRB(5, 0, 5, 8),
       width: double.infinity,
       child: ListView(
         controller: scrollController,
@@ -160,6 +160,8 @@ class AddpPermissionScrean extends StatelessWidget {
 
   Row row(context) {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Expanded(
           child: Consumer<StoreData>(
@@ -195,8 +197,6 @@ class AddpPermissionScrean extends StatelessWidget {
               isExpanded: expanded,
               headerBuilder: (BuildContext context, bool isExpanded) =>
                   new Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 0, vertical: 5),
                       child: ListTile(
                           trailing: customer != null
                               ? IconButton(
@@ -236,10 +236,16 @@ class AddpPermissionScrean extends StatelessWidget {
   }
 
   buildaddbutton(onpressed) {
+    /* return  Container(
+        width: 60,
+       padding:  EdgeInsets.only(bottom: getProportionateScreenHeight(0)),
+       child: IconButton(icon: Icon(Icons.add_box,color: Kprimary,size: getProportionateScreenHeight(50),), onPressed:onpressed )
+     );
+ */
     return Container(
-        margin: EdgeInsets.only(right: 5.0, bottom: 3),
-        height: 64,
-        width: 78,
+        margin: EdgeInsets.only(right: 5.0),
+        height: getProportionateScreenHeight(45),
+        width: getProportionateScreenWidth(52),
         alignment: Alignment.center,
         child: RaisedButton(
             color: Kprimary,
@@ -248,71 +254,77 @@ class AddpPermissionScrean extends StatelessWidget {
             child: Center(
                 child: Icon(
               Icons.add,
-              size: 30,
+              size: 18,
               color: white,
             )),
             onPressed: onpressed));
   }
 
   Widget typeHead(context) {
-    return Row(children: [
-      Expanded(
-        child: Consumer<StoreData>(
-          builder: (_, v, c) => AutoCompleteTextField<Product>(
-            controller: controller,
-            clearOnSubmit: false,
-            suggestions: v.productList,
-            decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-                filled: true,
-                fillColor: white,
-                hintText: 'ابحث عن المنتج....',
-                border: OutlineInputBorder()),
-            itemFilter: (Product p, String s) => p.productName
-                .toLowerCase()
-                .trim()
-                .contains(s.toLowerCase().trim()),
-            itemSubmitted: (Product p) {
-              controller.text = p.productName;
-              product = Product(
-                id: p.id,
-                amount: p.amount,
-                buy_price: p.buy_price,
-                categoryId: p.categoryId,
-                created_at: p.created_at,
-                productName: p.productName,
-                sell_price: p.sell_price,
-                storeid: p.storeid,
-              );
-              specials.changeProdutcSelected(true);
-            },
-            itemSorter: (a, b) => a.toString().compareTo(b.toString()),
-            itemBuilder: (_, Product item) => Container(
-              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-              child: Text(item.productName),
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Consumer<StoreData>(
+              builder: (_, v, c) => AutoCompleteTextField<Product>(
+                controller: controller,
+                clearOnSubmit: false,
+                suggestions: v.productList,
+                decoration: InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(
+                        vertical: getProportionateScreenHeight(10),
+                        horizontal: getProportionateScreenWidth(10)),
+                    filled: true,
+                    fillColor: white,
+                    hintText: 'ابحث عن المنتج....',
+                    border: OutlineInputBorder()),
+                itemFilter: (Product p, String s) => p.productName
+                    .toLowerCase()
+                    .trim()
+                    .contains(s.toLowerCase().trim()),
+                itemSubmitted: (Product p) {
+                  controller.text = p.productName;
+                  product = Product(
+                    id: p.id,
+                    amount: p.amount,
+                    buy_price: p.buy_price,
+                    categoryId: p.categoryId,
+                    created_at: p.created_at,
+                    productName: p.productName,
+                    sell_price: p.sell_price,
+                    storeid: p.storeid,
+                  );
+                  specials.changeProdutcSelected(true);
+                },
+                itemSorter: (a, b) => a.toString().compareTo(b.toString()),
+                itemBuilder: (_, Product item) => Container(
+                  padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+                  child: Text(item.productName),
+                ),
+              ),
             ),
           ),
-        ),
-      ),
-      type == 'add'
-          ? buildaddbutton(() => ProductDialog(context: context).addproduct())
-          : Container()
-    ]);
+          type == 'add'
+              ? buildaddbutton(
+                  () => ProductDialog(context: context).addproduct())
+              : Container()
+        ]);
   }
 
   Widget add_lackbutton(context) {
     return Consumer<Specials>(
       builder: (_, v, c) => Container(
-        margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
         child: Column(
           children: [
             Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
-                    margin: EdgeInsets.only(left: 5.0, bottom: 1),
-                    height: 55,
-                    width: 65,
+                    margin: EdgeInsets.only(right: 5.0),
+                    height: getProportionateScreenHeight(45),
+                    width: getProportionateScreenWidth(55),
                     alignment: Alignment.center,
                     child: RaisedButton(
                         color: v.productselected
@@ -323,7 +335,7 @@ class AddpPermissionScrean extends StatelessWidget {
                         child: Center(
                             child: Icon(
                           Icons.add,
-                          size: 28,
+                          size: 20,
                           color: white,
                         )),
                         onPressed: () {
@@ -348,7 +360,7 @@ class AddpPermissionScrean extends StatelessWidget {
                 Container(
                     // height: 55,
                     margin: EdgeInsets.only(right: 5, left: 5),
-                    width: 140,
+                    width: getProportionateScreenWidth(90),
                     alignment: Alignment.center,
                     child: TextField(
                       style: TextStyle(
@@ -360,9 +372,9 @@ class AddpPermissionScrean extends StatelessWidget {
                       decoration: InputDecoration(border: InputBorder.none),
                     )),
                 Container(
-                    margin: EdgeInsets.only(right: 5.0, bottom: 1),
-                    height: 55,
-                    width: 65,
+                    margin: EdgeInsets.only(right: 5.0),
+                    height: getProportionateScreenHeight(45),
+                    width: getProportionateScreenWidth(55),
                     alignment: Alignment.center,
                     child: RaisedButton(
                         color: v.productselected
@@ -373,7 +385,7 @@ class AddpPermissionScrean extends StatelessWidget {
                         child: Center(
                             child: Icon(
                           Icons.remove,
-                          size: 25,
+                          size: 20,
                           color: white,
                         )),
                         onPressed: () {
@@ -384,21 +396,22 @@ class AddpPermissionScrean extends StatelessWidget {
                             }
                           }
                         })),
+                SizedBox(
+                  width: getProportionateScreenWidth(10),
+                ),
                 Expanded(
-                  child: Container(
-                    margin: EdgeInsets.only(right: 25),
-                    height: 55,
-                    width: double.infinity,
-                    child: TextField(
-                      textAlign: TextAlign.center,
-                      onChanged: (v) {
-                        discount = v;
-                      },
-                      decoration: InputDecoration(
-                          suffixIcon: Icon(Icons.monetization_on),
-                          hintText: 'الخصم',
-                          border: OutlineInputBorder()),
-                    ),
+                  child: TextField(
+                    textAlign: TextAlign.center,
+                    onChanged: (v) {
+                      discount = v;
+                    },
+                    decoration: InputDecoration(
+                        contentPadding: EdgeInsets.symmetric(
+                            vertical: getProportionateScreenHeight(5),
+                            horizontal: getProportionateScreenWidth(5)),
+                        suffixIcon: Icon(Icons.monetization_on),
+                        hintText: 'الخصم',
+                        border: OutlineInputBorder()),
                   ),
                 ),
               ],
@@ -456,6 +469,8 @@ class AddpPermissionScrean extends StatelessWidget {
   }
 
   void addtoTableMethod(context) {
+    product.discount =
+        (discount == null || discount.isEmpty) ? 0 : double.parse(discount);
     storeData.addproductTable(amount, product, context);
     specials.changeProdutcSelected(false);
     product = null;
@@ -471,32 +486,38 @@ class AddpPermissionScrean extends StatelessWidget {
           elevation: 3,
           child: Container(
             alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+            padding: EdgeInsets.symmetric(
+                horizontal: getProportionateScreenWidth(5), vertical: 5),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Column(
-                  children: [
-                    Text(
-                      'السعر النهائى',
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
-                    ),
-                    SizedBox(
-                      height: 5,
-                    ),
-                    Text(
-                      value.sum.toString(),
-                      style:
-                          TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                    ),
-                  ],
+                Expanded(
+                  flex: 2,
+                  child: Column(
+                    children: [
+                      Text(
+                        'السعر النهائى',
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w800),
+                      ),
+                      SizedBox(
+                        height: 5,
+                      ),
+                      Text(
+                        value.sum.toString(),
+                        style: TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.w500),
+                      ),
+                    ],
+                  ),
                 ),
                 Expanded(
-                  flex: 1,
+                  flex: 3,
                   child: Container(
-                    height: 60,
-                    margin: EdgeInsets.fromLTRB(25, 0, 25, 0),
+                    height: getProportionateScreenHeight(60),
+                    margin: EdgeInsets.fromLTRB(getProportionateScreenWidth(8),
+                        0, getProportionateScreenWidth(8), 0),
                     child: TextField(
                       textAlign: TextAlign.center,
                       onChanged: (v) {
@@ -508,24 +529,29 @@ class AddpPermissionScrean extends StatelessWidget {
                         }
                       },
                       decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: getProportionateScreenHeight(10)),
                           suffixIcon: Icon(Icons.monetization_on),
                           hintText: 'المبلغ المدفوع',
                           border: OutlineInputBorder()),
                     ),
                   ),
                 ),
-                Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: FlutterSwitch(
-                    height: 40,
-                    activeColor: Kprimary,
-                    activeText: "نقدى",
-                    inactiveText: "آجل",
-                    value: value.paid,
-                    valueFontSize: 12.0,
-                    width: 90,
-                    borderRadius: 30.0,
-                    showOnOff: true,
+                Expanded(
+                  flex: 0,
+                  child: Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: FlutterSwitch(
+                      height: 40,
+                      activeColor: Kprimary,
+                      activeText: "نقدى",
+                      inactiveText: "آجل",
+                      value: value.paid,
+                      valueFontSize: 12.0,
+                      width: getProportionateScreenWidth(70),
+                      borderRadius: 30.0,
+                      showOnOff: true,
+                    ),
                   ),
                 ),
               ],
@@ -554,6 +580,7 @@ class AddpPermissionScrean extends StatelessWidget {
           .map((e) => (e.added && e.id == 0)
               ? ProductBackup(
                   productId: 0,
+                  discount: e.discount,
                   productName: e.productName,
                   amount: e.amount,
                   buy_price: e.buy_price,
@@ -575,7 +602,6 @@ class AddpPermissionScrean extends StatelessWidget {
           paidType: sw ? 'نقدى' : 'آجل',
           type: type,
           user: us,
-          discount: discount != null ? double.parse(discount) : 0.0,
           items: items);
       final res = await API.addPermission(p);
       if (res.statusCode == 200) {

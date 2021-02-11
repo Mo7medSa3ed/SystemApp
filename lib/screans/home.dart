@@ -115,7 +115,7 @@ class _HomeScreanState extends State<HomeScrean> {
         Row(
           children: [
             lonecard('عامل', d.toString(), Icons.people, true),
-            lonecard('منتج', e.toString(), Icons.list, true),
+            lonecard('منتج', e.toString(), Icons.grid_on, true),
             lonecard('مخزن', f.toString(), Icons.store, true)
           ],
         ),
@@ -130,8 +130,9 @@ class _HomeScreanState extends State<HomeScrean> {
     return Row(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
+          padding: const EdgeInsets.fromLTRB(6, 8, 6, 8),
           child: CircleAvatar(
+            
             backgroundColor: Kprimary,
             child: IconButton(
                 icon: Icon(
@@ -155,7 +156,7 @@ class _HomeScreanState extends State<HomeScrean> {
             readOnly: true,
             decoration: InputDecoration(
                 contentPadding:
-                    EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                    EdgeInsets.symmetric(vertical: getProportionateScreenHeight(6), horizontal: getProportionateScreenWidth(10)),
                 filled: true,
                 hintText: 'اختر المدة التى تريد جردها',
                 fillColor: white,
@@ -258,7 +259,7 @@ class _HomeScreanState extends State<HomeScrean> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
+                padding:  EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(6)),
                 child: Text(
                   'الصادرات و الواردات :  ',
                   style: TextStyle(
@@ -268,14 +269,14 @@ class _HomeScreanState extends State<HomeScrean> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(8.0),
+                padding:  EdgeInsets.all(getProportionateScreenWidth(6)),
                 child: buidPicker(),
               ),
               SizedBox(
                 height: getProportionateScreenHeight(10),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                padding:  EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(4)),
                 child: Row(
                   children: [
                     buildCardsforstatistic('اﻷذونات', Icons.security,
@@ -317,7 +318,7 @@ class _HomeScreanState extends State<HomeScrean> {
             ChartTitle(text: type == 'add' ? 'جميع الواردات' : 'جميع الصادرات'),
         tooltipBehavior: TooltipBehavior(enable: true),
         series: <ChartSeries<Chartdata, DateTime>>[
-          ScatterSeries<Chartdata, DateTime>(
+          SplineSeries<Chartdata, DateTime>(
               dataSource: filterdata(type),
               xValueMapper: (Chartdata sales, _) => DateTime.parse(sales.day),
               yValueMapper: (Chartdata sales, _) => sales.sum,
@@ -403,6 +404,7 @@ class _HomeScreanState extends State<HomeScrean> {
                   Icon(
                     icon,
                     color: Kprimary,
+                    size: 20,
                   )
                 ],
               ),
