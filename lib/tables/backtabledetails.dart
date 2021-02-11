@@ -1,31 +1,31 @@
-import 'package:filter_list/filter_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/constants.dart';
-import 'package:flutter_app/models/Permission.dart';
+import 'package:flutter_app/models/Back.dart';
 import 'package:flutter_app/provider/specials.dart';
+import 'package:flutter_app/provider/storedata.dart';
 import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
 
-class PermisionTableDetails extends StatefulWidget {
-  List<ProductBackup> list;
-  String type;
-  PermisionTableDetails(this.list,this.type);
+class BackTableDetails extends StatefulWidget {
+  List<BackProduct> list;
+  BackTableDetails(this.list);
   @override
   _StoreTableState createState() => _StoreTableState();
 }
 
-class _StoreTableState extends State<PermisionTableDetails> {
+class _StoreTableState extends State<BackTableDetails> {
   var _rowsPerPage = PaginatedDataTable.defaultRowsPerPage;
   var _sortColumnIndex = -1;
   var _sortAscending = true;
   var pds;
   var _controller = TextEditingController();
 
+  StoreData storeData;
   getData() {
     pds = PDS(
         context: context,
-        productList: widget.list,
-        filterproductList: widget.list);
+        backProductList: widget.list,
+        filterBackProductList: widget.list);
   }
 
   @override
@@ -36,7 +36,7 @@ class _StoreTableState extends State<PermisionTableDetails> {
   }
 
   void _sort<T>(
-    Comparable<T> Function(ProductBackup d) getField,
+    Comparable<T> Function(BackProduct d) getField,
     int columnIndex,
     bool ascending,
   ) {
@@ -53,6 +53,14 @@ class _StoreTableState extends State<PermisionTableDetails> {
     });
   }
 
+
+
+
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -65,69 +73,65 @@ class _StoreTableState extends State<PermisionTableDetails> {
               _rowsPerPage = value;
             });
           },
-          header: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Expanded(
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
-                  height: getProportionateScreenHeight(40),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                      color: greyw, borderRadius: BorderRadius.circular(10)),
-                  child: buildTextField(),
-                ),
-              ),
-            ],
+          header: Container(
+            width: double.infinity,
+            padding: EdgeInsets.symmetric(horizontal: 20),
+            height: getProportionateScreenHeight(40),
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                color: greyw, borderRadius: BorderRadius.circular(10)),
+            child: buildTextField(),
           ),
           sortColumnIndex: _sortColumnIndex == -1 ? null : _sortColumnIndex,
           sortAscending: _sortAscending,
-          showCheckboxColumn: false,
           source: pds,
           columns: [
             DataColumn(
               label: Text('Id'),
               numeric: true,
               onSort: (columnIndex, ascending) =>
-                  _sort<num>((d) => d.id, columnIndex, ascending),
+                  _sort<num>((d) => d.product.id, columnIndex, ascending),
             ),
             DataColumn(
-              label: Text('اسم المنتج'),
+              label: Text('الاسم'),
               onSort: (columnIndex, ascending) =>
-                  _sort<String>((d) => d.productName, columnIndex, ascending),
-            ),
-            DataColumn(
-              label: Text('الفئة'),
-              onSort: (columnIndex, ascending) => _sort<String>(
-                  (d) => d.categoryId.toString(), columnIndex, ascending),
-            ),
-            DataColumn(
-              label: Text(widget.type=='add'? 'الكمية المصروفة':'الكمية المضافة'),
-              onSort: (columnIndex, ascending) =>
-                  _sort<num>((d) => d.amount, columnIndex, ascending),
-            ),
-            DataColumn(
-              label: Text(widget.type=='add'?'الكمية قبل الصرف':'الكمية قبل الإضافة'),
-              onSort: (columnIndex, ascending) =>
-                  _sort<num>((d) => d.amount_before, columnIndex, ascending),
-            ),
-            DataColumn(
-              label: Text(widget.type=='add'?'الكمية بعد الصرف':'الكمية بعد الإضافة'),
-              onSort: (columnIndex, ascending) =>
-                  _sort<num>((d) => d.amount_after, columnIndex, ascending),
+                  _sort<String>((d) => d.product.productName, columnIndex, ascending),
             ),
             DataColumn(
               numeric: true,
               label: Text('سعر الشراء'),
               onSort: (columnIndex, ascending) =>
-                  _sort<num>((d) => d.buy_price, columnIndex, ascending),
+                  _sort<num>((d) => d.product.buy_price, columnIndex, ascending),
             ),
             DataColumn(
               numeric: true,
               label: Text('سعر البيع '),
               onSort: (columnIndex, ascending) =>
-                  _sort<num>((d) => d.sell_price, columnIndex, ascending),
+                  _sort<num>((d) => d.product.sell_price, columnIndex, ascending),
             ),
+            DataColumn(
+              label: Text('الكمية'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<num>((d) => d.product.amount, columnIndex, ascending),
+            ),
+            DataColumn(
+              label: Text('المخزن'),
+              onSort: (columnIndex, ascending) => _sort<String>(
+                  (d) => getStoreName(context: context, storeid: d.product.storeid),
+                  columnIndex,
+                  ascending),
+            ),
+            DataColumn(
+              label: Text('الفئة'),
+              onSort: (columnIndex, ascending) => _sort<String>(
+                  (d) => getCategoryname(context: context,id:  d.product.categoryId), columnIndex, ascending),
+            ),
+            DataColumn(
+              label: Text('تاريخ الاشتراك'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<String>((d) => d.product.created_at, columnIndex, ascending),
+            ),
+
           ],
         ),
       ),
@@ -170,28 +174,32 @@ class _StoreTableState extends State<PermisionTableDetails> {
 }
 
 class PDS extends DataTableSource {
-  List<ProductBackup> productList;
-  List<ProductBackup> filterproductList;
+  List<BackProduct> backProductList;
+  List<BackProduct> filterBackProductList;
   BuildContext context;
   int _selectedCount = 0;
-
-  PDS({this.productList, this.context, this.filterproductList});
+  StoreData _storeData ;
+  PDS({this.backProductList, this.context, this.filterBackProductList});
 
   @override
   DataRow getRow(int index) {
-    final product = productList[index];
+    final backProduct = backProductList[index];
     return DataRow.byIndex(
       index: index,
       cells: [
-        DataCell(Text(product.id.toString())),
-        DataCell(Text(product.productName)),
+        DataCell(Text(backProduct.product.id.toString())),
+        DataCell(Text(backProduct.product.productName)),
+        DataCell(Center(child: Text(backProduct.product.buy_price.toString()))),
+        DataCell(Center(child: Text(backProduct.product.sell_price.toString()))),
+        DataCell(Center(child: Text(backProduct.product.amount.toString()))),
         DataCell(
-            Text(getCategoryname(context: context, id: product.categoryId))),
-        DataCell(Center(child: Text(product.amount.toString()))),
-        DataCell(Center(child: Text(product.amount_before.toString()))),
-        DataCell(Center(child: Text(product.amount_after.toString()))),
-        DataCell(Center(child: Text(product.buy_price.toString()))),
-        DataCell(Center(child: Text(product.sell_price.toString()))),
+            Text(getStoreName(context: context, storeid: backProduct.product.storeid))),
+        DataCell(
+            Text(getCategoryname(context: context, id: backProduct.product.categoryId))),
+        DataCell(Text(backProduct.product.created_at != null
+            ? backProduct.product.created_at.substring(0, 10)
+            : "")),
+        
       ],
     );
   }
@@ -202,15 +210,14 @@ class PDS extends DataTableSource {
 
   @override
   // TODO: implement rowCount
-  int get rowCount => productList.length;
+  int get rowCount => backProductList.length;
 
   @override
   // TODO: implement selectedRowCount
   int get selectedRowCount => _selectedCount;
 
-  void _sort<T>(
-      Comparable<T> Function(ProductBackup d) getField, bool ascending) {
-    productList.sort((a, b) {
+  void _sort<T>(Comparable<T> Function(BackProduct d) getField, bool ascending) {
+    backProductList.sort((a, b) {
       final aValue = getField(a);
       final bValue = getField(b);
       return ascending
@@ -222,23 +229,27 @@ class PDS extends DataTableSource {
 
   filter(value) {
     if (value == "-1") {
-      productList = filterproductList;
+      backProductList = filterBackProductList;
       notifyListeners();
       return;
     }
     if (value.toString().trim().isNotEmpty) {
-      List<ProductBackup> l = filterproductList
-          .where((element) => element.productName.contains(value))
+      List<BackProduct> l = filterBackProductList
+          .where((element) => element.product.productName.contains(value))
           .toList();
-      productList = l;
+      backProductList = l;
       notifyListeners();
       return;
     }
+
+   
+
   }
 }
 
+
 /**
- * productList.where((element) {
+ * BackProductList.where((element) {
         return [].contains(element);
       });
  * 

@@ -176,7 +176,7 @@ void _openFilterDialog() async {
             DataColumn(
               label: Text('الفئة'),
               onSort: (columnIndex, ascending) => _sort<String>(
-                  (d) => d.categoryId.toString(), columnIndex, ascending),
+                  (d) =>getCategoryname(context: context,id:  d.categoryId), columnIndex, ascending),
             ),
             DataColumn(
               label: Text('تاريخ الاشتراك'),

@@ -6,6 +6,7 @@ import 'package:flutter_app/dialogs/dialogs.dart';
 import 'package:flutter_app/drawer.dart';
 import 'package:flutter_app/models/product.dart';
 import 'package:flutter_app/provider/storedata.dart';
+import 'package:flutter_app/screans/home.dart';
 import 'package:flutter_app/tables/producttable.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -18,39 +19,32 @@ class AllProductScrean extends StatelessWidget {
     storeData = Provider.of<StoreData>(context, listen: false);
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Scaffold(
-          appBar: AppBar(
-            title: Text('جميع المنتجات'),
-            actions: [
-              IconButton(
-                  icon: Icon(
-                    Icons.add_circle_outline,
-                    size: 30,
-                  ),
-                  onPressed: () =>  ProductDialog(context: context).addproduct()),
-                  
-              SizedBox(
-                width: 15,
-              ),
-            ],
-          ),
-          floatingActionButton: buildSpeedDial(context),
-          drawer: MainDrawer(),
-          body: FutureBuilder<List<Product>>(
-            future: API.getAllProducts(),
-            builder: (ctx, snap) {
-              if (snap.hasData) {
-                storeData.initProductList(snap.data);
+      child: WillPopScope(
+        onWillPop: () =>  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => HomeScrean()),
+                    (Route<dynamic> route) => false),
+              child: Scaffold(
+            appBar: AppBar(
+              title: Text('جميع المنتجات'),
+            ),
+            floatingActionButton: buildSpeedDial(context),
+            drawer: MainDrawer(),
+            body: FutureBuilder<List<Product>>(
+              future: API.getAllProducts(),
+              builder: (ctx, snap) {
+                if (snap.hasData) {
+                  storeData.initProductList(snap.data);
 
-                return ProductTable();
-              
-              } else {
-                return SpinKitCircle(
-                  color: Kprimary,
-                );
-              }
-            },
-          )),
+                  return ProductTable();
+                
+                } else {
+                  return SpinKitCircle(
+                    color: Kprimary,
+                  );
+                }
+              },
+            )),
+      ),
     );
   }
  

@@ -9,8 +9,6 @@ class Permission {
   num sum;
   num discount;
   num paidMoney;
-  String customerName;
-  num customerId;
   String paidType;
   List<ProductBackup> items;
   List<BacksId> backs;
@@ -43,16 +41,17 @@ class Permission {
         backs:
             List<BacksId>.from(json['backs'].map((e) => BacksId.fromJson(e))),
       );
+
+
   Map<String, dynamic> toJsonForUpdate() => {
         'id': id,
-        'type': type,
-        'user': user.toJsonForUpdate(),
+        
         'paidMoney': paidMoney,
-        'discount': discount,
-        'customer': customer.toJsonForUpdate(),
-        'paidType': paidType,
-        'items': items.map((e) => e.toJsonForUpdate()).toList(),
+     
       };
+
+
+
 
   Map<String, dynamic> toJson() => {
         'type': type,

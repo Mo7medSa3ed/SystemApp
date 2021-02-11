@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_app/api/api.dart';
 import 'package:flutter_app/constants.dart';
@@ -122,7 +124,8 @@ class SignupScrean extends StatelessWidget {
             storeid: getStoreid(context: context, storename: storename));
         final res = await API.signUp(user);
         if (res.statusCode == 200) {
-          saveUser(res.body,context);
+          final y =utf8.decode(res.bodyBytes);
+          saveUser(y,context);
           Navigator.pop(context);
           Navigator.of(context)
               .pushAndRemoveUntil(MaterialPageRoute(builder: (_) => HomeScrean()),(Route<dynamic> route) => false  );

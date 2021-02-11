@@ -36,10 +36,11 @@ class _StoreTableState extends State<BackTable> {
   }
 
   @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
     storeData = Provider.of<StoreData>(context, listen: false);
+    storeData.isCheckable = false;
   }
 
   void _sort<T>(
@@ -62,14 +63,17 @@ class _StoreTableState extends State<BackTable> {
 
   @override
   Widget build(BuildContext context) {
-    p != null ? getData() : null;
+    storeData = Provider.of<StoreData>(context, listen: true);
+     if (!(storeData.isCheckable)) {
+      controller.clear();
+    } 
     return SingleChildScrollView(
       child: Container(
         width: double.infinity,
         child: Column(
           children: [
             typeHead(context),
-            p != null
+            storeData.isCheckable
                 ? Column(
                     children: [
                       PaginatedDataTable(
@@ -148,14 +152,6 @@ class _StoreTableState extends State<BackTable> {
                                 ascending),
                           ),
                           DataColumn(
-                            label: Text('المخزن'),
-                            onSort: (columnIndex, ascending) => _sort<String>(
-                                (d) => getStoreName(
-                                    context: context, storeid: d.product.storeid),
-                                columnIndex,
-                                ascending),
-                          ),
-                          DataColumn(
                             label: Text('تاريخ الإٍشتراك'),
                             onSort: (columnIndex, ascending) => _sort<String>(
                                 (d) => d.product.created_at,
@@ -206,8 +202,10 @@ class _StoreTableState extends State<BackTable> {
         },
         itemSubmitted: (Permission pb) {
           controller.text = pb.id.toString();
+          storeData.changeCheckable(true);
           setState(() {
             p = pb;
+            getData();
           });
         },
         itemSorter: (a, b) => a.toString().compareTo(b.toString()),
@@ -262,6 +260,7 @@ class PDS extends DataTableSource {
   List<ProductBackup> filterproductList;
   Permission permission;
   BuildContext context;
+  List<ProductBackup> addedList = [];
 
   PDS(
       {this.productList,
@@ -281,10 +280,11 @@ class PDS extends DataTableSource {
         DataCell(Center(child: Text(product.sell_price.toString()))),
         DataCell(Center(child: Text(product.buy_price.toString()))),
         DataCell(Center(child: Text(product.amount.toString())),
-            showEditIcon: true, onTap: () => updateAmount(product)),
-        DataCell(Center(
-            child: Text(
-                getStoreName(context: context, storeid: product.storeid)))),
+            showEditIcon: true, onTap: () {
+          if (product.amount > 0) {
+            updateAmount(product);
+          }
+        }),
         DataCell(Text(product.created_at != null
             ? product.created_at.substring(0, 10)
             : "")),
@@ -358,7 +358,11 @@ class PDS extends DataTableSource {
               formKey.currentState.save();
               final i = productList.indexWhere((element) => element.id == p.id);
               if (i != -1) {
-                productList[i].amount = int.parse(amount.toString().trim());
+                if (productList[i].amount !=
+                    int.parse(amount.toString().trim())) {
+                  int.parse(amount.toString().trim());
+                  addedList.add(productList[i]);
+                }
                 notifyListeners();
               }
 
@@ -391,27 +395,31 @@ class PDS extends DataTableSource {
   }
 
   makeBackPer() async {
-;
+    if (addedList.length > 0) {
+      showDialogWidget(context);
+      final storeData = Provider.of<StoreData>(context, listen: false);
+      List<BackProduct> f = productList
+          .map((e) => BackProduct(
+              product: ProductBackup(productId: e.productId), amount: e.amount))
+          .toList();
 
-
-     showDialogWidget(context);
-    final storeData = Provider.of<StoreData>(context, listen: false);
-    Back b = Back(
-        bill_id: permission.id,
-        username: storeData.loginUser.username,
-        storename: 'asd',
-        products: productList
-            .map((e) => BackProduct(
-                product: e,
-                amount: e.amount))
-            .toList());
-    final res = await API.addbackPermission(b);
-    if (res.statusCode == 200) {
-      Navigator.pop(context);
-      Dialogs(context).successDilalog("تم عمل الإذن بنجاح ");
+      Back b = Back(
+          customer: permission.customer,
+          bill_id: permission.id,
+          username: storeData.loginUser.username,
+          storename: 'asd',
+          products: f);
+      final res = await API.addbackPermission(b);
+      if (res.statusCode == 200) {
+        Navigator.pop(context);
+        Dialogs(context).successDilalog("تم عمل الإذن بنجاح ");
+        storeData.changeCheckable(false);
+      } else {
+        Navigator.pop(context);
+        Dialogs(context).errorDilalog();
+      }
     } else {
-      Navigator.pop(context);
-      Dialogs(context).errorDilalog();
-    } 
+      Dialogs(context).warningDilalog2(msg: '!! لم يتم التعديل ع اى منتج');
+    }
   }
 }

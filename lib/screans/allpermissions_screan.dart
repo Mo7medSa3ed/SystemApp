@@ -4,6 +4,7 @@ import 'package:flutter_app/constants.dart';
 import 'package:flutter_app/drawer.dart';
 import 'package:flutter_app/models/Permission.dart';
 import 'package:flutter_app/provider/storedata.dart';
+import 'package:flutter_app/screans/home.dart';
 import 'package:flutter_app/tables/permissiontable.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:provider/provider.dart';
@@ -15,27 +16,32 @@ class AllPermissionsScrean extends StatelessWidget {
     storeData = Provider.of<StoreData>(context, listen: false);
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Scaffold(
-          appBar: AppBar(
-            title: Text('جميع الآذونات'),
-           
-          ),
-          drawer: MainDrawer(),
-          body: FutureBuilder<List<Permission>>(
-            future: API.getAllpermissions(),
-            builder: (ctx, snap) {
-              if (snap.hasData) {
-                storeData.initPermissionList(snap.data);
+      child: WillPopScope(
+        onWillPop: () =>  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => HomeScrean()),
+                    (Route<dynamic> route) => false),
+              child: Scaffold(
+            appBar: AppBar(
+              title: Text('جميع الآذونات'),
+             
+            ),
+            drawer: MainDrawer(),
+            body: FutureBuilder<List<Permission>>(
+              future: API.getAllpermissions(),
+              builder: (ctx, snap) {
+                if (snap.hasData) {
+                  storeData.initPermissionList(snap.data);
 
-                return PermissionTable();
-              
-              } else {
-                return SpinKitCircle(
-                  color: Kprimary,
-                );
-              }
-            },
-          )),
+                  return PermissionTable();
+                
+                } else {
+                  return SpinKitCircle(
+                    color: Kprimary,
+                  );
+                }
+              },
+            )),
+      ),
     );
   }
  

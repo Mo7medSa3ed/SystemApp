@@ -21,7 +21,7 @@ TextFormField buildTextFormField(
     obscureText: secure,
     keyboardType: keyboardType,
     maxLengthEnforced:keyboardType==TextInputType.number?true:false,
-    maxLength:keyboardType==TextInputType.number?7:keyboardType==TextInputType.phone?11:null,
+    maxLength:keyboardType==TextInputType.number?9:keyboardType==TextInputType.phone?11:null,
     inputFormatters: keyboardType==TextInputType.number?[FilteringTextInputFormatter.digitsOnly]:null,
     decoration: InputDecoration(
         border: OutlineInputBorder(),
@@ -80,7 +80,7 @@ saveUser(user,context) async {
   StoreData storeData = Provider.of<StoreData>(context,listen: false);
   prfs.setString('user', user);
   final parsed = json.decode(user);
-    User u = User.fromJson(parsed);
+  User u = User.fromJson(parsed);
   storeData.initLoginUser(u);
 }
 

@@ -1,7 +1,8 @@
+import 'package:autocomplete_textfield/autocomplete_textfield.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app/api/api.dart';
-import 'package:flutter_app/dialogs/addcategory.dart';
 import 'package:flutter_app/dialogs/dialogs.dart';
+import 'package:flutter_app/models/category.dart';
 import 'package:flutter_app/models/product.dart';
 import 'package:flutter_app/provider/storedata.dart';
 import 'package:provider/provider.dart';
@@ -13,15 +14,21 @@ import '../widget.dart';
 class ProductDialog {
   BuildContext context;
   ProductDialog({this.context});
-  String productname, sellprice, buyprice, amount, category, storename;
-
+  String productname, sellprice, buyprice, amount, storename;
+  Categorys categorys;
+  List<Categorys> categoriesList = [];
   bool expanded = false;
+  String name;
   StoreData storeData;
   final formKey = GlobalKey<FormState>();
+    final formKey2 = GlobalKey<FormState>();
+
 
   addproduct({Product p}) {
     SizeConfig().init(context);
+    categoriesList = [];
     storeData = Provider.of<StoreData>(context, listen: false);
+    categoriesList = storeData.categoryList;
     return Alert(
         context: context,
         closeIcon: Icon(
@@ -36,99 +43,70 @@ class ProductDialog {
             width: MediaQuery.of(context).size.width - 40,
             child: Form(
               key: formKey,
-              child: Column(
-                children: <Widget>[
-                  SizedBox(
-                    height: getProportionateScreenHeight(10),
-                  ),
-                  buildTextFormField(
-                      value: p != null ? p.productName : null,
-                      onsaved: (v) => productname = v,
-                      secure: false,
-                      hint: 'اكتب الاسم',
-                      label: 'اسم المنتج',
-                      keyboardType: TextInputType.text),
-                  SizedBox(
-                    height: getProportionateScreenHeight(20),
-                  ),
-                  buildTextFormField(
-                      value: p != null ? p.buy_price.toString() : null,
-                      onsaved: (v) => buyprice = v,
-                      secure: false,
-                      hint: 'اكتب سعر الشراء',
-                      icon: Icons.monetization_on_outlined,
-                      label: 'سعر الشراء',
-                      keyboardType: TextInputType.number),
-                  SizedBox(
-                    height: getProportionateScreenHeight(20),
-                  ),
-                  buildTextFormField(
-                      value: p != null ? p.sell_price.toString() : null,
-                      onsaved: (v) => sellprice = v,
-                      secure: false,
-                      icon: Icons.monetization_on_outlined,
-                      hint: 'اكتب سعر البيع',
-                      label: 'سعر البيع',
-                      keyboardType: TextInputType.number),
-                  SizedBox(
-                    height: getProportionateScreenHeight(20),
-                  ),
-                  buildTextFormField(
-                      value: p != null ? p.amount.toString() : null,
-                      onsaved: (v) => amount = v,
-                      secure: false,
-                      hint: 'اكتب الكمية المتاحة',
-                      label: 'الكمية',
-                      keyboardType: TextInputType.number),
-                  SizedBox(
-                    height: getProportionateScreenHeight(20),
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Consumer<StoreData>(
-                          builder: (c, s, w) => buildDropDown(
-                              expanded: expanded,
-                              headertext: p != null
-                                  ? getCategoryname(
-                                      context: context, id: p.categoryId)
-                                  : 'اختر الفئة',
-                              list: s.categoryList.map((e) => e.name).toList(),
-                              value: false),
-                        ),
-                      ),
-                      Container(
-                          margin: EdgeInsets.only(right: 5.0, bottom: 1),
-                          height: 64,
-                          width: 78,
-                          alignment: Alignment.center,
-                          child: RaisedButton(
-                              color: Kprimary,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(4)),
-                              child: Center(
-                                  child: Icon(
-                                Icons.add,
-                                size: 30,
-                                color: white,
-                              )),
-                              onPressed: () => CategoryDialog(context: context)
-                                  .addcategory())),
-                    ],
-                  ),
-                  SizedBox(height: getProportionateScreenHeight(20)),
-                  buildDropDown(
-                      expanded: expanded,
-                      headertext: p != null
-                          ? getStoreName(context: context, storeid: p.storeid)
-                          : 'اختر المخزن',
-                      list:
-                          storeData.storeList.map((e) => e.storename).toList(),
-                      value: true),
-                  SizedBox(
-                    height: getProportionateScreenHeight(25),
-                  ),
-                ],
+              child: SingleChildScrollView(
+                child: Column(
+                  children: <Widget>[
+                    SizedBox(
+                      height: getProportionateScreenHeight(10),
+                    ),
+                    buildTextFormField(
+                        value: p != null ? p.productName : null,
+                        onsaved: (v) => productname = v,
+                        secure: false,
+                        hint: 'اكتب الاسم',
+                        label: 'اسم المنتج',
+                        keyboardType: TextInputType.text),
+                    SizedBox(
+                      height: getProportionateScreenHeight(20),
+                    ),
+                    buildTextFormField(
+                        value: p != null ? p.buy_price.toString() : null,
+                        onsaved: (v) => buyprice = v,
+                        secure: false,
+                        hint: 'اكتب سعر الشراء',
+                        icon: Icons.monetization_on_outlined,
+                        label: 'سعر الشراء',
+                        keyboardType: TextInputType.number),
+                    SizedBox(
+                      height: getProportionateScreenHeight(20),
+                    ),
+                    buildTextFormField(
+                        value: p != null ? p.sell_price.toString() : null,
+                        onsaved: (v) => sellprice = v,
+                        secure: false,
+                        icon: Icons.monetization_on_outlined,
+                        hint: 'اكتب سعر البيع',
+                        label: 'سعر البيع',
+                        keyboardType: TextInputType.number),
+                    SizedBox(
+                      height: getProportionateScreenHeight(20),
+                    ),
+                    buildTextFormField(
+                        value: p != null ? p.amount.toString() : null,
+                        onsaved: (v) => amount = v,
+                        secure: false,
+                        hint: 'اكتب الكمية المتاحة',
+                        label: 'الكمية',
+                        keyboardType: TextInputType.number),
+                    SizedBox(
+                      height: getProportionateScreenHeight(20),
+                    ),
+                    autoComplete(),
+                    SizedBox(height: getProportionateScreenHeight(20)),
+                    buildDropDown(
+                        expanded: expanded,
+                        headertext: p != null
+                            ? getStoreName(context: context, storeid: p.storeid)
+                            : 'اختر المخزن',
+                        list: storeData.storeList
+                            .map((e) => e.storename)
+                            .toList(),
+                        value: true),
+                    SizedBox(
+                      height: getProportionateScreenHeight(25),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -149,6 +127,59 @@ class ProductDialog {
             ),
           )
         ]).show();
+  }
+
+  Widget autoComplete() {
+    return Row(
+      children: [
+        Expanded(
+          child: AutoCompleteTextField<Categorys>(
+            //controller: controller,
+            clearOnSubmit: false,
+            suggestions: categoriesList,
+            decoration: InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                filled: true,
+                fillColor: white,
+                hintText: 'ابحث عن فئة ....',
+                border: OutlineInputBorder()),
+            itemFilter: (Categorys p, String s) =>
+                p.name.toLowerCase().trim().contains(s.toLowerCase().trim()),
+            itemSubmitted: (Categorys p) {
+              categorys = Categorys(
+                  id: p.id,
+                  created_at: p.created_at,
+                  name: p.name,
+                  productslength: p.productslength);
+            },
+            itemSorter: (a, b) => a.toString().compareTo(b.toString()),
+            itemBuilder: (_, Categorys item) => Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              child: Text(item.name),
+            ),
+          ),
+        ),
+
+        Container(
+            margin: EdgeInsets.only(right: 5.0, bottom: 1),
+            height: 64,
+            width: 78,
+            alignment: Alignment.center,
+            child: RaisedButton(
+                color: Kprimary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4)),
+                child: Center(
+                    child: Icon(
+                  Icons.add,
+                  size: 30,
+                  color: white,
+                )),
+                onPressed: () => addcategory())),
+        //
+      ],
+    );
   }
 
   Widget buildDropDown(
@@ -185,12 +216,12 @@ class ProductDialog {
                                       },
                                     )
                                   : null
-                              : category != null
+                              : categorys != null
                                   ? IconButton(
                                       icon: Icon(Icons.close),
                                       onPressed: () {
                                         setstate(() {
-                                          category = null;
+                                          categorys = null;
                                           expanded = false;
                                         });
                                       },
@@ -200,14 +231,14 @@ class ProductDialog {
                               ? storename != null
                                   ? storename
                                   : headertext
-                              : category != null
-                                  ? category
+                              : categorys != null
+                                  ? categorys
                                   : headertext))),
               body: Column(
                 children: list
                     .map((e) => ListTile(
                           onTap: () => setstate(() {
-                            value ? storename = e : category = e;
+                            value ? storename = e : categorys.name = e;
                             expanded = false;
                           }),
                           title: Text(e),
@@ -221,33 +252,73 @@ class ProductDialog {
     );
   }
 
-  add() async {
-    formKey.currentState.save();
-    if (productname == null ||
-        sellprice == null ||
-        buyprice == null ||
-        storename == null ||
-        category == null ||
-        amount == null) {
+  addcategory({Categorys category}) {
+    SizeConfig().init(context);
+    storeData = Provider.of<StoreData>(context, listen: false);
+    return Alert(
+        context: context,
+        closeIcon: Icon(
+          Icons.close,
+          color: black,
+          size: 24,
+        ),
+        title: category != null ? "تعديل فئة" : "اضف فئة",
+        content: Directionality(
+          textDirection: TextDirection.rtl,
+          child: Container(
+            width: MediaQuery.of(context).size.width - 40,
+            child: Form(
+              key: formKey2,
+              child: Column(
+                children: <Widget>[
+                  SizedBox(
+                    height: getProportionateScreenHeight(10),
+                  ),
+                  buildTextFormField(
+                      value: category != null ? category.name : null,
+                      onsaved: (v) => name = v,
+                      secure: false,
+                      hint: 'اكتب الاسم',
+                      label: 'اسم الفئة',
+                      keyboardType: TextInputType.text),
+                ],
+              ),
+            ),
+          ),
+        ),
+        buttons: [
+          DialogButton(
+            color: Kprimary,
+            height: getProportionateScreenHeight(40),
+            onPressed: () async {
+              await addcategorys();
+            },
+            child: Center(
+              child: Text(
+                category != null ? "تعديل فئة" : "اضف فئة",
+                style: TextStyle(color: white, fontSize: 16),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          )
+        ]).show();
+  }
+
+  addcategorys() async {
+    formKey2.currentState.save();
+    if (name == null) {
       return Dialogs(context).infoDilalog();
     } else {
       showDialogWidget(context);
       storeData = Provider.of<StoreData>(context, listen: false);
-
-      Product p = Product(
-          productName: productname,
-          amount: int.parse(amount.trim()),
-          buy_price: double.parse(buyprice.trim()),
-          sell_price: double.parse(sellprice.trim()),
-          storeid: getStoreid(context: context, storename: storename),
-          categoryId: getCategoryid(context: context, name: category));
-
-      final res = await API.addProduct(p);
+      Categorys category = Categorys(productslength: 0.0, name: name);
+      final res = await API.addCategory(category);
       if (res != null) {
-        storeData.addProduct(res);
+        categoriesList.add(res);
+        storeData.addCategory(res);
         Navigator.pop(context);
         Navigator.pop(context);
-        Dialogs(context).successDilalog("تم اضافة منتج بنجاح");
+        Dialogs(context).successDilalog("تم اضافة فئة بنجاح");
       } else {
         Navigator.pop(context);
         Navigator.pop(context);
@@ -256,20 +327,50 @@ class ProductDialog {
     }
   }
 
+  add() async {
+    formKey.currentState.save();
+    if (productname == null ||
+        sellprice == null ||
+        buyprice == null ||
+        storename == null ||
+        categorys == null ||
+        amount == null) {
+      return Dialogs(context).infoDilalog();
+    } else {
+      showDialogWidget(context);
+      storeData = Provider.of<StoreData>(context, listen: false);
+
+      Product p = Product(
+          id: 0,
+          productName: productname,
+          amount: int.parse(amount.trim()),
+          buy_price: double.parse(buyprice.trim()),
+          sell_price: double.parse(sellprice.trim()),
+          storeid: getStoreid(context: context, storename: storename),
+          categoryId: categorys.id);
+      p.added = true;
+      storeData.addProduct(p);
+      storeData.addproductTable(p.amount, p, context);
+      Navigator.pop(context);
+      Navigator.pop(context);
+      Dialogs(context).successDilalog("تم اضافة منتج بنجاح");
+    }
+  }
+
   update(Product p) async {
     formKey.currentState.save();
     if (storename == null) {
       storename = getStoreName(context: context, storeid: p.storeid);
     }
-    if (category == null) {
-      category = getCategoryname(context: context, id: p.categoryId);
+    if (categorys == null) {
+      categorys = Categorys(id: p.id);
     }
 
     if (productname == null ||
         sellprice == null ||
         buyprice == null ||
         storename == null ||
-        category == null ||
+        categorys == null ||
         amount == null) {
       return Dialogs(context).infoDilalog();
     } else {
@@ -283,7 +384,7 @@ class ProductDialog {
           buy_price: double.parse(buyprice.trim()),
           sell_price: double.parse(sellprice.trim()),
           storeid: getStoreid(context: context, storename: storename),
-          categoryId: getCategoryid(context: context, name: category));
+          categoryId: categorys.id);
 
       final res = await API.updateProduct([product]);
       if (res != null) {

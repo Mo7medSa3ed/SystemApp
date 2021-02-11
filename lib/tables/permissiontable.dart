@@ -155,12 +155,12 @@ class _PermissionTableState extends State<PermissionTable> {
                   DataColumn(
                     label: Text('اسم العميل'),
                     onSort: (columnIndex, ascending) => _sort<String>(
-                        (d) => d.customerName, columnIndex, ascending),
+                        (d) => d.customer.name, columnIndex, ascending),
                   ),
                    DataColumn(
                     label: Text('المبلغ الكلى'),
                     onSort: (columnIndex, ascending) => _sort<num>(
-                        (d) => d.sum, columnIndex, ascending),
+                        (d) => (d.sum-d.paidMoney), columnIndex, ascending),
                   ),
                      DataColumn(
                     label: Text('المبلغ المدفوع'),
@@ -173,9 +173,19 @@ class _PermissionTableState extends State<PermissionTable> {
                         (d) => d.paidType ,columnIndex, ascending),
                   ),
                     DataColumn(
+                    label: Text('الخصم'),
+                    onSort: (columnIndex, ascending) => _sort<num>(
+                        (d) => d.discount ,columnIndex, ascending),
+                  ),
+                    DataColumn(
                     label: Text('اسم العامل'),
                     onSort: (columnIndex, ascending) => _sort<String>(
                         (d) => d.user.username,columnIndex, ascending),
+                  ),
+                     DataColumn(
+                    label: Text('عدد مرات التعديل'),
+                    onSort: (columnIndex, ascending) => _sort<num>(
+                        (d) => d.backs.length,columnIndex, ascending),
                   ),
                   DataColumn(
                     label: Text('تاريخ الاشتراك'),
@@ -238,14 +248,16 @@ class Cds extends DataTableSource {
     final permission = permissionList[index];
     return DataRow.byIndex(
       index: index,
-      onSelectChanged: (v)=>Navigator.of(context).push(MaterialPageRoute(builder: (_)=>PermisionDetailsScrean(permission))),
+      onSelectChanged: (v)=>Navigator.of(context).push(MaterialPageRoute(builder: (_)=>PermisionDetailsScrean(index))),
       cells: [
         DataCell(Text(permission.id.toString())),
-        DataCell(Text(permission.customerName.toString())),
-        DataCell(Center(child: Text(permission.sum.toString()))),
+        DataCell(Text(permission.customer.name.toString())),
+        DataCell(Center(child: Text((permission.sum-permission.paidMoney).toString()))),
         DataCell(Center(child: Text(permission.paidMoney.toString()))),
         DataCell(Text(permission.paidType)),
+        DataCell(Center(child: Text(permission.discount.toString()))),
         DataCell(Text(permission.user.username)),
+        DataCell(Center(child: Text(permission.backs.length.toString()+' مرة'))),
         DataCell(Text(permission.created_at != null
             ? permission.created_at.substring(0, 10)
             : "")),
@@ -284,7 +296,7 @@ class Cds extends DataTableSource {
     }
     if (value.toString().trim().isNotEmpty) {
       List<Permission> l = filterPermissionList
-          .where((element) => element.customerName.contains(value))
+          .where((element) => element.customer.name.contains(value))
           .toList();
       permissionList = l;
       notifyListeners();

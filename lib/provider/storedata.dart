@@ -29,6 +29,8 @@ class StoreData extends ChangeNotifier {
 
   initLoginUser(User user) {
     loginUser = user;
+    notifyListeners();
+
   }
 
   changeCheckable(v) {
@@ -38,30 +40,44 @@ class StoreData extends ChangeNotifier {
 
   initUserList(userList) {
     this.userList = userList;
+    notifyListeners();
+
   }
 
   initbackList(backs) {
     this.backs = backs;
+    notifyListeners();
+
   }
 
   initCategoryList(categoryList) {
     this.categoryList = categoryList;
+    notifyListeners();
+
   }
 
   initPermissionList(permissionList) {
     this.permissionList = permissionList;
+    notifyListeners();
   }
 
   initcustomerList(customerList) {
     this.customerList = customerList;
+    notifyListeners();
+
   }
 
   initStoreList(storeList) {
     this.storeList = storeList;
+    notifyListeners();
+
   }
 
   initProductList(productList) {
+
     this.productList = productList;
+    notifyListeners();
+
   }
 
   addUser(User user) {
@@ -102,6 +118,16 @@ class StoreData extends ChangeNotifier {
     if (u != -1) {
       storeList.removeAt(u);
       storeList.insert(u, store);
+      notifyListeners();
+    }
+  }
+
+   updatePermission(Permission permission) {
+    int u = permissionList.indexWhere((element) => element.id == permission.id);
+    if (u != -1) {
+      permissionList[u]=permission;
+     /*  storeList.removeAt(u);
+      permissionList.insert(u, permission); */
       notifyListeners();
     }
   }

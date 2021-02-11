@@ -34,7 +34,7 @@ class Back {
         'username': username,
         'customer': customer.toJsonForUpdate(),
         'bill_id': bill_id,
-        'products': products.map((e) => e.toJsonForUpdate()),
+        'products': products.map((e) => e.toJsonForUpdate()).toList(),
       };
 
   Map<String, dynamic> toJson() => {
@@ -42,7 +42,7 @@ class Back {
         'username': username,
         'bill_id': bill_id,
         'customer': customer.toJson(),
-        'products': products.map((e) => e.toJson())
+        'products': products.map((e) => e.toJson()).toList()
       };
 }
 

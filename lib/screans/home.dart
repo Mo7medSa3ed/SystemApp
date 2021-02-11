@@ -21,16 +21,44 @@ class _HomeScreanState extends State<HomeScrean> {
   num a, b, c, d, e, f = 0;
   var controller = TextEditingController();
   List<Permission> permisionList;
-    List<Permission> alldataList;
-  num imports =0;
-  num exports =0;
-  num length =0;
+  List<Permission> alldataList;
+  num imports = 0;
+  num exports = 0;
+  num length = 0;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getPermissions();
-    storeData = Provider.of<StoreData>(context, listen: false);
+    getpermisionList();
+  }
+
+  getpermisionList() async {
+    await API.getAllpermissions().then((value) {
+      setState(() {
+        permisionList = value;
+        alldataList = value;
+      //  getdata('add');
+        filterdata('add');
+        filterdata('lack');
+      });
+    });
+  }
+
+  /* num getdata(type) {
+    imports = 0;
+    exports = 0;
+    permisionList.forEach((e) {
+      if (e.type == 'add') {
+        exports += e.sum;
+      } else {
+        imports += e.sum;
+      }
+    });
+    return type == 'add' ? imports : exports;
+  } */
+
+  data() {
+    storeData = Provider.of<StoreData>(context, listen: true);
     final l = storeData.userList;
     a = l.length;
     b = l.where((e) => e.role == 'عامل').toList().length;
@@ -40,37 +68,15 @@ class _HomeScreanState extends State<HomeScrean> {
     f = storeData.storeList.length;
   }
 
-  getPermissions() async {
-    print("adas");
-    await API.getAllpermissions().then((value) {
-      setState(() {
-        permisionList = value;
-        alldataList =value;
-        getdata('lack');
-        
-      });
-    });
-  }
-  getdata(type){
-    num f=0;
-    num a=0;
-    permisionList.where((e) {
-      if(e.type=='add'){
-       f += e.sum; 
-      }else{
-        a+=e.sum; 
-      }
-    } ).toList();
-    setState(() {
-      exports=a;
-      imports=f;
-      length =permisionList.length;
-    });
+  @override
+  void didChangeDependencies() {
+    // TODO: implement didChangeDependencies
+    super.didChangeDependencies();
+    data();
   }
 
   @override
   Widget build(BuildContext context) {
-    
     return SafeArea(
       child: Directionality(
         textDirection: TextDirection.rtl,
@@ -80,11 +86,15 @@ class _HomeScreanState extends State<HomeScrean> {
             title: Text('مخزنك'),
           ),
           drawer: MainDrawer(),
-          body: ListView(
-            children: [
-              cards(),
-              buildChart(),
-            ],
+          body: RefreshIndicator(
+            onRefresh: () => Navigator.of(context).pushReplacement(
+                MaterialPageRoute(builder: (_) => HomeScrean())),
+            child: ListView(
+              children: [
+                cards(),
+                buildChart(),
+              ],
+            ),
           ),
         ),
       ),
@@ -112,54 +122,47 @@ class _HomeScreanState extends State<HomeScrean> {
         SizedBox(
           height: getProportionateScreenHeight(10),
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Text(
-            'الصادرات و الواردات :  ',
-            style: TextStyle(
-                fontWeight: FontWeight.w600,
-                fontSize: 24,
-                color: black.withOpacity(0.75)),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: buidPicker(),
-        ),
-        SizedBox(
-          height: getProportionateScreenHeight(10),
-        ),
-        Row(
-          children: [
-            buildCardsforstatistic('اﻷذونات', Icons.security, '0 اذن'),
-            buildCardsforstatistic('الصادرات', Icons.outbox, '${exports} جنيه'),
-            buildCardsforstatistic('الواردات', Icons.inbox, '${imports} جنيه'),
-          ],
-        )
       ],
     );
   }
 
   Widget buidPicker() {
-    return TextFormField(
-      controller: controller,
-      onTap: () async => await showDatePicker(),
-      readOnly: true,
-      decoration: InputDecoration(
-          contentPadding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
-          suffixIcon: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: IconButton(icon: Icon(Icons.close),onPressed: () {
-              controller.clear();
-              setState(() {
-                permisionList=alldataList;
-              });
-            } ,),
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(12, 8, 6, 8),
+          child: CircleAvatar(
+            backgroundColor: Kprimary,
+            child: IconButton(
+                icon: Icon(
+                  Icons.close,
+                  color: white,
+                ),
+                onPressed: () {
+                  controller.clear();
+                  setState(() {
+                    permisionList = alldataList;
+                    filterdata('add');
+                    filterdata('lack');
+                  });
+                }),
           ),
-          filled: true,
-          hintText: 'اختر المدة التى تريد جردها',
-          fillColor: white,
-          border: OutlineInputBorder()),
+        ),
+        Expanded(
+          child: TextFormField(
+            controller: controller,
+            onTap: () async => await showDatePicker(),
+            readOnly: true,
+            decoration: InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                filled: true,
+                hintText: 'اختر المدة التى تريد جردها',
+                fillColor: white,
+                border: OutlineInputBorder()),
+          ),
+        ),
+      ],
     );
   }
 
@@ -182,8 +185,10 @@ class _HomeScreanState extends State<HomeScrean> {
     } else {
       controller.clear();
       setState(() {
-      permisionList = alldataList;
-    });
+        permisionList = alldataList;
+        filterdata('add');
+        filterdata('lack');
+      });
     }
   }
 
@@ -248,61 +253,133 @@ class _HomeScreanState extends State<HomeScrean> {
 
   buildChart() {
     return permisionList != null
-        ? Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Directionality(
-              textDirection: TextDirection.ltr,
-              child: Column(
-                mainAxisSize: MainAxisSize.max,
-                children: [
-                  buildChartLine('add'),
-                  buildChartLine('lack'),
-                ],
+        ? Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  'الصادرات و الواردات :  ',
+                  style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 24,
+                      color: black.withOpacity(0.75)),
+                ),
               ),
-            ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: buidPicker(),
+              ),
+              SizedBox(
+                height: getProportionateScreenHeight(10),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                child: Row(
+                  children: [
+                    buildCardsforstatistic('اﻷذونات', Icons.security,
+                        '${permisionList.length} اذن'),
+                    buildCardsforstatistic(
+                        'الصادرات', Icons.outbox, '${filterdata('lack').length>0?filterdata('lack')[0].sum:0} جنيه'),
+                    buildCardsforstatistic(
+                        'الواردات', Icons.inbox, '${filterdata('add').length>0?filterdata('add')[0].sum:0} جنيه'),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    children: [
+                      buildChartLine('add'),
+                      buildChartLine('lack'),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           )
         : Container(
-          width: double.infinity,
-          height: double.infinity,
-          child: CircularProgressIndicator());
+            alignment: Alignment.center,
+            height: 400,
+            width: double.infinity,
+            child: Center(child: CircularProgressIndicator()));
   }
 
   Widget buildChartLine(type) {
-    // final l =s.data.map((e) => {e.created_at,e.sum}).toList();
-    // print(l);
-
     return SfCartesianChart(
         primaryXAxis: DateTimeAxis(),
         // Chart title
         title:
             ChartTitle(text: type == 'add' ? 'جميع الواردات' : 'جميع الصادرات'),
         tooltipBehavior: TooltipBehavior(enable: true),
-        series: <ChartSeries<Permission, DateTime>>[
-          SplineSeries<Permission, DateTime>(
-              dataSource: permisionList.where((e) => e.type == type).toList(),
-              xValueMapper: (Permission sales, _) =>
-                  DateTime.parse(sales.created_at),
-              yValueMapper: (Permission sales, _) => sales.sum,
+        series: <ChartSeries<Chartdata, DateTime>>[
+          ScatterSeries<Chartdata, DateTime>(
+              dataSource: filterdata(type),
+              xValueMapper: (Chartdata sales, _) => DateTime.parse(sales.day),
+              yValueMapper: (Chartdata sales, _) => sales.sum,
               name: 'Sales',
               // Enable data label
               dataLabelSettings: DataLabelSettings(isVisible: true))
         ]);
   }
 
+  List<Chartdata> filterdata(type) {
+    num s = 0;
+    List<Chartdata> chartdataList = [];
+    List<Permission> addlist = [];
+    List<Permission> lacklist = [];
+
+    if (type == 'add') {
+      addlist = permisionList.where((element) => element.type == type).toList();
+      final l =
+          addlist.map((e) => e.created_at.substring(0, 10)).toSet().toList();
+
+      l.forEach((e) {
+        addlist.forEach((c) {
+          if (e == (c.created_at.substring(0, 10))) {
+            s += c.sum;
+          }
+        });
+        chartdataList.add(Chartdata(day: e, sum: s));
+      });
+    } else {
+      lacklist =
+          permisionList.where((element) => element.type == type).toList();
+      final l =
+          lacklist.map((e) => e.created_at.substring(0, 10)).toSet().toList();
+
+      l.forEach((e) {
+        lacklist.forEach((c) {
+          if (e == (c.created_at.substring(0, 10))) {
+            s += c.sum;
+          }
+        });
+        chartdataList.add(Chartdata(day: e, sum: s));
+      });
+    }
+
+    return chartdataList;
+  }
+
   dateRangeDataReturn(DateTime f, DateTime s) {
     final l = permisionList.where((e) {
       DateTime d = DateTime.parse(e.created_at);
-      if(d.compareTo(f)==0|| d.compareTo(s)==0){
+      if (d.compareTo(f) == 0 || d.compareTo(s) == 0) {
         return true;
-      }else if( d.compareTo(s)<0 && f.compareTo(d)<0 ){
+      } else if (d.compareTo(s) < 0 && f.compareTo(d) < 0) {
         return true;
-      }else{
+      } else {
         return false;
       }
-
     }).toList();
     setState(() {
       permisionList = l;
+      filterdata('add');
+      filterdata('lack');
     });
   }
 
@@ -344,4 +421,10 @@ class _HomeScreanState extends State<HomeScrean> {
       ),
     );
   }
+}
+
+class Chartdata {
+  String day;
+  num sum;
+  Chartdata({this.day, this.sum});
 }

@@ -295,6 +295,21 @@ class API {
     return response;
   }
 
+  static Future<Permission> updatepermission(Permission permisions) async {
+    final response = await http.put('$_BASE_URL/permisions/all',
+        headers: <String, String>{
+          'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: json.encode(permisions.toJsonForUpdate()));
+   if (response.statusCode == 200) {
+      final body = utf8.decode(response.bodyBytes);
+      final parsed = json.decode(body);
+      return Permission.fromJson(parsed);
+    } else {
+      return null;
+    }
+  }
+
 
 
   // Backs

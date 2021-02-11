@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app/api/api.dart';
 import 'package:flutter_app/constants.dart';
 import 'package:flutter_app/dialogs/addcustomer.dart';
+import 'package:flutter_app/dialogs/addproduct.dart';
 import 'package:flutter_app/dialogs/dialogs.dart';
 import 'package:flutter_app/drawer.dart';
 import 'package:flutter_app/models/Customer.dart';
@@ -13,6 +14,7 @@ import 'package:flutter_app/models/store.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/provider/specials.dart';
 import 'package:flutter_app/provider/storedata.dart';
+import 'package:flutter_app/screans/home.dart';
 import 'package:flutter_app/size_config.dart';
 import 'package:flutter_app/tables/pertable.dart';
 import 'package:flutter_app/widget.dart';
@@ -23,7 +25,9 @@ import 'package:provider/provider.dart';
 class AddpPermissionScrean extends StatelessWidget {
   String type;
 
-  AddpPermissionScrean({this.type});
+  AddpPermissionScrean({
+    this.type,
+  });
 
   StoreData storeData;
   Specials specials;
@@ -37,24 +41,32 @@ class AddpPermissionScrean extends StatelessWidget {
   num finalPrice = 0.0;
   bool expanded = false;
   String paidMoney;
+  String discount;
   Product product;
-
+  List<Product> productList = [];
   var controller = TextEditingController();
 
   var amountController = TextEditingController(text: '0');
   var scrollController = ScrollController();
 
+  reset() {
+    storeData.productTableList = [];
+    specials.productselected = false;
+    storeData.sum = 0.0;
+    storeData.paid = false;
+  }
+
   @override
   Widget build(BuildContext context) {
     storeData = Provider.of<StoreData>(context, listen: false);
     specials = Provider.of<Specials>(context, listen: false);
+    print("asds");
     return WillPopScope(
       onWillPop: () {
-        storeData.productTableList = [];
-        specials.productselected = false;
-        storeData.sum = 0.0;
-        storeData.paid = false;
-        Navigator.of(context).pop();
+        reset();
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(builder: (_) => HomeScrean()),
+            (Route<dynamic> route) => false);
       },
       child: Directionality(
         textDirection: TextDirection.rtl,
@@ -86,8 +98,8 @@ class AddpPermissionScrean extends StatelessWidget {
               future: API.getAllProducts(),
               builder: (ctx, snap) {
                 if (snap.hasData) {
-                  storeData.initProductList(snap.data);
-
+                  productList = snap.data;
+                  print("sadasdasdasd");
                   return Body(context);
                 } else {
                   return SpinKitCircle(
@@ -158,24 +170,9 @@ class AddpPermissionScrean extends StatelessWidget {
             ),
           ),
         ),
-        Container(
-            margin: EdgeInsets.only(right: 5.0, bottom: 1),
-            height: 64,
-            width: 78,
-            alignment: Alignment.center,
-            child: RaisedButton(
-                color: Kprimary,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4)),
-                child: Center(
-                    child: Icon(
-                  Icons.add,
-                  size: 30,
-                  color: white,
-                )),
-                onPressed: () => CustomerDialog(
-                        context: context, type: type != 'add' ? 'عميل' : 'مورد')
-                    .addcustomer())),
+        buildaddbutton(() => CustomerDialog(
+                context: context, type: type != 'add' ? 'عميل' : 'مورد')
+            .addcustomer())
       ],
     );
   }
@@ -238,139 +235,200 @@ class AddpPermissionScrean extends StatelessWidget {
     );
   }
 
+  buildaddbutton(onpressed) {
+    return Container(
+        margin: EdgeInsets.only(right: 5.0, bottom: 3),
+        height: 64,
+        width: 78,
+        alignment: Alignment.center,
+        child: RaisedButton(
+            color: Kprimary,
+            shape:
+                RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+            child: Center(
+                child: Icon(
+              Icons.add,
+              size: 30,
+              color: white,
+            )),
+            onPressed: onpressed));
+  }
+
   Widget typeHead(context) {
-    return AutoCompleteTextField(
-      controller: controller,
-      clearOnSubmit: false,
-      suggestions: storeData.productList,
-      decoration: InputDecoration(
-          filled: true,
-          fillColor: white,
-          hintText: 'ابحث عن المنتج....',
-          border: OutlineInputBorder()),
-      itemFilter: (Product p, String s) =>
-          p.productName.toLowerCase().trim().contains(s.toLowerCase().trim()),
-      itemSubmitted: (Product p) {
-        controller.text = p.productName;
-        product = Product(
-          id: p.id,
-          amount: p.amount,
-          buy_price: p.buy_price,
-          categoryId: p.categoryId,
-          created_at: p.created_at,
-          productName: p.productName,
-          sell_price: p.sell_price,
-          storeid: p.storeid,
-        );
-        specials.changeProdutcSelected(true);
-      },
-      itemSorter: (a, b) => a.toString().compareTo(b.toString()),
-      itemBuilder: (_, Product item) => Container(
-        padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
-        child: Text(item.productName),
+    return Row(children: [
+      Expanded(
+        child: Consumer<StoreData>(
+          builder: (_, v, c) => AutoCompleteTextField<Product>(
+            controller: controller,
+            clearOnSubmit: false,
+            suggestions: v.productList,
+            decoration: InputDecoration(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+                filled: true,
+                fillColor: white,
+                hintText: 'ابحث عن المنتج....',
+                border: OutlineInputBorder()),
+            itemFilter: (Product p, String s) => p.productName
+                .toLowerCase()
+                .trim()
+                .contains(s.toLowerCase().trim()),
+            itemSubmitted: (Product p) {
+              controller.text = p.productName;
+              product = Product(
+                id: p.id,
+                amount: p.amount,
+                buy_price: p.buy_price,
+                categoryId: p.categoryId,
+                created_at: p.created_at,
+                productName: p.productName,
+                sell_price: p.sell_price,
+                storeid: p.storeid,
+              );
+              specials.changeProdutcSelected(true);
+            },
+            itemSorter: (a, b) => a.toString().compareTo(b.toString()),
+            itemBuilder: (_, Product item) => Container(
+              padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+              child: Text(item.productName),
+            ),
+          ),
+        ),
       ),
-    );
+      type == 'add'
+          ? buildaddbutton(() => ProductDialog(context: context).addproduct())
+          : Container()
+    ]);
   }
 
   Widget add_lackbutton(context) {
     return Consumer<Specials>(
       builder: (_, v, c) => Container(
         margin: EdgeInsets.fromLTRB(20, 0, 20, 0),
-        child: Row(
+        child: Column(
           children: [
-            Container(
-                margin: EdgeInsets.only(left: 5.0, bottom: 1),
-                height: 55,
-                width: 65,
-                alignment: Alignment.center,
-                child: RaisedButton(
-                    color: v.productselected
-                        ? Kprimary
-                        : Kprimary.withOpacity(0.3),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4)),
-                    child: Center(
-                        child: Icon(
-                      Icons.add,
-                      size: 28,
-                      color: white,
+            Row(
+              children: [
+                Container(
+                    margin: EdgeInsets.only(left: 5.0, bottom: 1),
+                    height: 55,
+                    width: 65,
+                    alignment: Alignment.center,
+                    child: RaisedButton(
+                        color: v.productselected
+                            ? Kprimary
+                            : Kprimary.withOpacity(0.3),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4)),
+                        child: Center(
+                            child: Icon(
+                          Icons.add,
+                          size: 28,
+                          color: white,
+                        )),
+                        onPressed: () {
+                          if (v.productselected) {
+                            if (type == 'lack') {
+                              if (amount >= 0 && amount < product.amount) {
+                                amount++;
+                                amountController.text = amount.toString();
+                              } else {
+                                Dialogs(context).warningDilalog2(
+                                    msg:
+                                        'اقصى كمية يمكن صرفها ${product.amount}');
+                              }
+                            } else {
+                              if (amount >= 0) {
+                                amount++;
+                                amountController.text = amount.toString();
+                              }
+                            }
+                          }
+                        })),
+                Container(
+                    // height: 55,
+                    margin: EdgeInsets.only(right: 5, left: 5),
+                    width: 140,
+                    alignment: Alignment.center,
+                    child: TextField(
+                      style: TextStyle(
+                          color: black,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20),
+                      controller: amountController,
+                      textAlign: TextAlign.center,
+                      decoration: InputDecoration(border: InputBorder.none),
                     )),
-                    onPressed: () {
-                      if (type == 'lack') {
-                        print(product.amount);
-                        if (amount >= 0 && amount < product.amount) {
-                          amount++;
-                          amountController.text = amount.toString();
-                        } else {
+                Container(
+                    margin: EdgeInsets.only(right: 5.0, bottom: 1),
+                    height: 55,
+                    width: 65,
+                    alignment: Alignment.center,
+                    child: RaisedButton(
+                        color: v.productselected
+                            ? Kprimary
+                            : Kprimary.withOpacity(0.3),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(4)),
+                        child: Center(
+                            child: Icon(
+                          Icons.remove,
+                          size: 25,
+                          color: white,
+                        )),
+                        onPressed: () {
+                          if (v.productselected) {
+                            if (amount > 0) {
+                              amount--;
+                              amountController.text = amount.toString();
+                            }
+                          }
+                        })),
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(right: 25),
+                    height: 55,
+                    width: double.infinity,
+                    child: TextField(
+                      textAlign: TextAlign.center,
+                      onChanged: (v) {
+                        discount = v;
+                      },
+                      decoration: InputDecoration(
+                          suffixIcon: Icon(Icons.monetization_on),
+                          hintText: 'الخصم',
+                          border: OutlineInputBorder()),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Container(
+              padding: EdgeInsets.only(top: 15),
+              width: double.infinity,
+              child: RaisedButton(
+                color: v.productselected ? Kprimary : Kprimary.withOpacity(0.3),
+                onPressed: () {
+                  if (amount == 0) {
+                    Dialogs(context)
+                        .warningDilalog2(msg: ' !!ادخل الكمية المطلوبة');
+                  } else if (product != null) {
+                    if (amount > product.amount && type != 'add') {
+                      Dialogs(context).warningDilalog2(
+                          msg: 'اقصى كمية يمكن صرفها ${product.amount}');
+                      return;
+                    } else if (type != 'add') {
+                      final p = storeData.productTableList.firstWhere(
+                          (e) => e.id == product.id,
+                          orElse: () => null);
+                      if (p != null) {
+                        if ((p.amount + amount) > product.amount) {
                           Dialogs(context).warningDilalog2(
                               msg: 'اقصى كمية يمكن صرفها ${product.amount}');
+                          return;
+                        } else {
+                          addtoTableMethod(context);
                         }
-                      } else {
-                        if (amount >= 0) {
-                          amount++;
-                          amountController.text = amount.toString();
-                        }
-                      }
-                    })),
-            Container(
-                // height: 55,
-                margin: EdgeInsets.only(right: 5, left: 5),
-                width: 140,
-                alignment: Alignment.center,
-                child: TextField(
-                  style: TextStyle(
-                      color: black, fontWeight: FontWeight.w700, fontSize: 20),
-                  controller: amountController,
-                  textAlign: TextAlign.center,
-                  decoration: InputDecoration(border: InputBorder.none),
-                )),
-            Container(
-                margin: EdgeInsets.only(right: 5.0, bottom: 1),
-                height: 55,
-                width: 65,
-                alignment: Alignment.center,
-                child: RaisedButton(
-                    color: v.productselected
-                        ? Kprimary
-                        : Kprimary.withOpacity(0.3),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4)),
-                    child: Center(
-                        child: Icon(
-                      Icons.remove,
-                      size: 25,
-                      color: white,
-                    )),
-                    onPressed: () {
-                      print(amount);
-                      if (amount > 0) {
-                        amount--;
-                        amountController.text = amount.toString();
-                      }
-                    })),
-            Spacer(),
-
-            // updat
-            RaisedButton(
-              color: v.productselected ? Kprimary : Kprimary.withOpacity(0.3),
-              onPressed: () {
-                if (amount == 0) {
-                  Dialogs(context)
-                      .warningDilalog2(msg: ' !!ادخل الكمية المطلوبة');
-                } else if (product != null) {
-                  if (amount > product.amount && type != 'add') {
-                    Dialogs(context).warningDilalog2(
-                        msg: 'اقصى كمية يمكن صرفها ${product.amount}');
-                    return;
-                  } else if (type != 'add') {
-                    final p = storeData.productTableList.firstWhere(
-                        (e) => e.id == product.id,
-                        orElse: () => null);
-                    if (p != null) {
-                      if ((p.amount + amount) > product.amount) {
-                        Dialogs(context).warningDilalog2(
-                            msg: 'اقصى كمية يمكن صرفها ${product.amount}');
-                        return;
                       } else {
                         addtoTableMethod(context);
                       }
@@ -378,19 +436,17 @@ class AddpPermissionScrean extends StatelessWidget {
                       addtoTableMethod(context);
                     }
                   } else {
-                    addtoTableMethod(context);
+                    Dialogs(context)
+                        .warningDilalog2(msg: '!! برجاء اختيار منتج ع الأقل ');
                   }
-                } else {
-                  Dialogs(context)
-                      .warningDilalog2(msg: '!! برجاء اختيار منتج ع الأقل ');
-                }
-              },
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4)),
-              child: Text(
-                'اضف للجدول',
-                style: TextStyle(color: white, fontSize: 16),
+                },
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4)),
+                child: Text(
+                  'اضف للجدول',
+                  style: TextStyle(color: white, fontSize: 16),
+                ),
               ),
             )
           ],
@@ -481,10 +537,7 @@ class AddpPermissionScrean extends StatelessWidget {
   }
 
   makePermission(context) async {
-    print(customer.name);
-    print(store.storename);
-
-    if (customer == null || store == null) {
+    if (customer == null) {
       return Dialogs(context).infoDilalog();
     } else if (storeData.productTableList.length == 0) {
       return Dialogs(context).warningDilalog2(msg: '!! لم يتم اضافة منتجات');
@@ -498,7 +551,16 @@ class AddpPermissionScrean extends StatelessWidget {
       UserBackup us =
           UserBackup(username: u.username, role: u.role, password: u.password);
       List<ProductBackup> items = storeData.productTableList
-          .map((e) => ProductBackup(productId: e.id, amount: e.amount))
+          .map((e) => (e.added && e.id == 0)
+              ? ProductBackup(
+                  productId: 0,
+                  productName: e.productName,
+                  amount: e.amount,
+                  buy_price: e.buy_price,
+                  sell_price: e.sell_price,
+                  storeid: e.storeid,
+                  categoryId: e.categoryId)
+              : ProductBackup(productId: e.id, amount: e.amount))
           .toList();
 
       CustomerBackeup c = CustomerBackeup(
@@ -508,17 +570,18 @@ class AddpPermissionScrean extends StatelessWidget {
           name: customer.name,
           phone: customer.phone);
       Permission p = Permission(
-        
-        customer: c,
+          customer: c,
           paidMoney: sw ? int.parse(paidMoney.trim()) : 0,
           paidType: sw ? 'نقدى' : 'آجل',
           type: type,
           user: us,
+          discount: discount != null ? double.parse(discount) : 0.0,
           items: items);
       final res = await API.addPermission(p);
       if (res.statusCode == 200) {
         Navigator.pop(context);
         Dialogs(context).successDilalog("تم عمل الإذن بنجاح ");
+        reset();
       } else {
         Navigator.pop(context);
         Dialogs(context).errorDilalog();
@@ -526,3 +589,5 @@ class AddpPermissionScrean extends StatelessWidget {
     }
   }
 }
+
+//async => await makePermission(context)

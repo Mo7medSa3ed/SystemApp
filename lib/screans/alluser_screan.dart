@@ -5,6 +5,7 @@ import 'package:flutter_app/dialogs/adduser.dart';
 import 'package:flutter_app/dialogs/dialogs.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/provider/storedata.dart';
+import 'package:flutter_app/screans/home.dart';
 import 'package:flutter_app/tables/usertable.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
@@ -18,38 +19,43 @@ class AllUserScrean extends StatelessWidget {
     storeData = Provider.of<StoreData>(context, listen: false);
     return Directionality(
       textDirection: TextDirection.rtl,
-      child: Scaffold(
-          appBar: AppBar(
-            title: Text('جميع العمال'),
-            actions: [
-              IconButton(
-                  icon: Icon(
-                    Icons.add_circle_outline,
-                    size: 30,
-                  ),
-                  onPressed: () => Usersdialog(context: context).addUser()),
-              SizedBox(
-                width: 15,
-              ),
-            ],
-          ),
-           drawer: MainDrawer(),
-          floatingActionButton: buildSpeedDial(context),
-          body: FutureBuilder<List<User>>(
-            future: API.getAllUsers(),
-            builder: (ctx, snap) {
-              if (snap.hasData) {
-                storeData.initUserList(snap.data);
-       
-                     return UsersTable();
-        
-              } else {
-                return SpinKitCircle(
-                  color: Kprimary,
-                );
-              }
-            },
-          )),
+      child:WillPopScope(
+        onWillPop: () =>  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => HomeScrean()),
+                    (Route<dynamic> route) => false),
+              child: Scaffold(
+            appBar: AppBar(
+              title: Text('جميع العمال'),
+              actions: [
+                IconButton(
+                    icon: Icon(
+                      Icons.add_circle_outline,
+                      size: 30,
+                    ),
+                    onPressed: () => Usersdialog(context: context).addUser()),
+                SizedBox(
+                  width: 15,
+                ),
+              ],
+            ),
+             drawer: MainDrawer(),
+            floatingActionButton: buildSpeedDial(context),
+            body: FutureBuilder<List<User>>(
+              future: API.getAllUsers(),
+              builder: (ctx, snap) {
+                if (snap.hasData) {
+                  storeData.initUserList(snap.data);
+         
+                       return UsersTable();
+          
+                } else {
+                  return SpinKitCircle(
+                    color: Kprimary,
+                  );
+                }
+              },
+            )),
+      ),
     );
   }
 

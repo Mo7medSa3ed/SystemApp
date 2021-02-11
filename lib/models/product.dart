@@ -8,6 +8,7 @@ num storeid;
 num categoryId;
 String created_at;
 bool selected =false;
+bool added =false;
 Product({this.id,this.created_at,this.storeid,this.amount,this.buy_price,this.productName,this.sell_price,this.categoryId});
 
 factory Product.fromJson(Map<String, dynamic> json) => Product(
