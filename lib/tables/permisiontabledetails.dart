@@ -9,7 +9,7 @@ import 'package:provider/provider.dart';
 class PermisionTableDetails extends StatefulWidget {
   List<ProductBackup> list;
   String type;
-  PermisionTableDetails(this.list,this.type);
+  PermisionTableDetails(this.list, this.type);
   @override
   _StoreTableState createState() => _StoreTableState();
 }
@@ -71,7 +71,7 @@ class _StoreTableState extends State<PermisionTableDetails> {
               Expanded(
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  height: getProportionateScreenHeight(55),
+                  height: 50,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                       color: greyw, borderRadius: BorderRadius.circular(10)),
@@ -102,19 +102,30 @@ class _StoreTableState extends State<PermisionTableDetails> {
                   (d) => d.categoryId.toString(), columnIndex, ascending),
             ),
             DataColumn(
-              label: Text(widget.type=='add'? 'الكمية المصروفة':'الكمية المضافة'),
+              label: Text(
+                  widget.type != 'add' ? 'الكمية المصروفة' : 'الكمية المضافة'),
               onSort: (columnIndex, ascending) =>
                   _sort<num>((d) => d.amount, columnIndex, ascending),
             ),
             DataColumn(
-              label: Text(widget.type=='add'?'الكمية قبل الصرف':'الكمية قبل الإضافة'),
+              label: Text(widget.type != 'add'
+                  ? 'الكمية قبل الصرف'
+                  : 'الكمية قبل الإضافة'),
               onSort: (columnIndex, ascending) =>
                   _sort<num>((d) => d.amount_before, columnIndex, ascending),
             ),
             DataColumn(
-              label: Text(widget.type=='add'?'الكمية بعد الصرف':'الكمية بعد الإضافة'),
+              label: Text(widget.type != 'add'
+                  ? 'الكمية بعد الصرف'
+                  : 'الكمية بعد الإضافة'),
               onSort: (columnIndex, ascending) =>
                   _sort<num>((d) => d.amount_after, columnIndex, ascending),
+            ),
+            DataColumn(
+              numeric: true,
+              label: Text('الخصم'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<num>((d) => d.discount, columnIndex, ascending),
             ),
             DataColumn(
               numeric: true,
@@ -153,6 +164,8 @@ class _StoreTableState extends State<PermisionTableDetails> {
             },
             cursorColor: Kprimary,
             decoration: InputDecoration(
+                  contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 suffixIcon: data
                     ? Icon(Icons.search)
                     : IconButton(
@@ -190,6 +203,7 @@ class PDS extends DataTableSource {
         DataCell(Center(child: Text(product.amount.toString()))),
         DataCell(Center(child: Text(product.amount_before.toString()))),
         DataCell(Center(child: Text(product.amount_after.toString()))),
+        DataCell(Center(child: Text(product.discount.toString()))),
         DataCell(Center(child: Text(product.buy_price.toString()))),
         DataCell(Center(child: Text(product.sell_price.toString()))),
       ],

@@ -61,7 +61,7 @@ class _CategoryTableState extends State<CategoryTable> {
           },
           header: Container(
             padding: EdgeInsets.symmetric(horizontal: 10),
-            height: getProportionateScreenHeight(55),
+            height: 50,
             width: double.infinity,
             decoration: BoxDecoration(
                 color: greyw, borderRadius: BorderRadius.circular(10)),
@@ -124,6 +124,8 @@ class _CategoryTableState extends State<CategoryTable> {
             },
             cursorColor: Kprimary,
             decoration: InputDecoration(
+                  contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 suffixIcon: data
                     ? Icon(Icons.search)
                     : IconButton(

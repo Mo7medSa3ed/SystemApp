@@ -60,7 +60,7 @@ class _StoreTableState extends State<StoreTable> {
           header: Container(
             alignment: Alignment.center,
             padding: EdgeInsets.symmetric(horizontal: 10),
-            height: getProportionateScreenHeight(55),
+            height:55,
             width: double.infinity,
             decoration: BoxDecoration(
                 color: greyw, borderRadius: BorderRadius.circular(10)),
@@ -138,6 +138,8 @@ class _StoreTableState extends State<StoreTable> {
       },
       cursorColor: Kprimary,
       decoration: InputDecoration(
+            contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           suffixIcon: data
               ? Icon(Icons.search)
               : IconButton(

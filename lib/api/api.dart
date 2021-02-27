@@ -9,7 +9,8 @@ import 'package:flutter_app/models/user.dart';
 import 'package:http/http.dart' as http;
 
 class API {
-  static String _BASE_URL = 'https://morning-crag-76907.herokuapp.com';
+ // static String _BASE_URL = 'https://morning-crag-76907.herokuapp.com';
+  static String _BASE_URL = 'http://192.168.1.14:8081';
 
   // functions For user
   static Future<http.Response> signUp(User user) async {

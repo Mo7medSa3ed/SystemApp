@@ -53,7 +53,7 @@ class SignupScrean extends StatelessWidget {
                                 height: getProportionateScreenHeight(40),
                               ),
                               buildTextFormField(
-                                onsaved: (v)=>username=v,
+                                  onsaved: (v) => username = v,
                                   icon: Icons.email,
                                   secure: false,
                                   hint: 'اكتب اسمك',
@@ -63,8 +63,8 @@ class SignupScrean extends StatelessWidget {
                                 height: getProportionateScreenHeight(20),
                               ),
                               buildTextFormField(
-                                onsaved: (v)=>password=v,
-                                 icon: Icons.lock,
+                                  onsaved: (v) => password = v,
+                                  icon: Icons.lock,
                                   secure: true,
                                   hint: 'اكتب كلمة السر',
                                   label: 'كلمة السر',
@@ -85,13 +85,15 @@ class SignupScrean extends StatelessWidget {
                                   headertext: 'اختر المخزن التابع له',
                                   list: Provider.of<StoreData>(context,
                                           listen: false)
-                                      .storeList.map((e) => e.storename).toList(),
+                                      .storeList
+                                      .map((e) => e.storename)
+                                      .toList(),
                                   value: false),
                               SizedBox(
                                 height: getProportionateScreenHeight(20),
                               ),
                               buildRaisedButton(
-                                color: Kprimary,
+                                  color: Kprimary,
                                   text: 'انشاء حساب',
                                   pressed: () async => await signup(context)),
                               SizedBox(
@@ -124,13 +126,18 @@ class SignupScrean extends StatelessWidget {
             storeid: getStoreid(context: context, storename: storename));
         final res = await API.signUp(user);
         if (res.statusCode == 200) {
-          final y =utf8.decode(res.bodyBytes);
-          saveUser(y,context);
+          final y = utf8.decode(res.bodyBytes);
+          saveUser(y, context);
           Navigator.pop(context);
-          Navigator.of(context)
-              .pushAndRemoveUntil(MaterialPageRoute(builder: (_) => HomeScrean()),(Route<dynamic> route) => false  );
+          FocusScope.of(context).requestFocus(FocusNode());
+
+          Navigator.of(context).pushAndRemoveUntil(
+              MaterialPageRoute(builder: (_) => HomeScrean()),
+              (Route<dynamic> route) => false);
         } else {
           Navigator.pop(context);
+          FocusScope.of(context).requestFocus(FocusNode());
+
           showSnackbarWidget(
               msg:
                   'برجاء ادخال البيانات صحيحة و التاكد من الاتصال بالانترنت !!',

@@ -10,9 +10,9 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 TextFormField buildTextFormField(
-    {label, hint, keyboardType, secure,icon,onsaved ,value}) {
+    {label, hint, keyboardType, secure, icon, onsaved, value}) {
   return TextFormField(
-    initialValue:value ,
+    initialValue: value,
     onSaved: onsaved,
     validator: (e) => e.toString().isEmpty
         ? secure
@@ -21,11 +21,19 @@ TextFormField buildTextFormField(
         : null,
     obscureText: secure,
     keyboardType: keyboardType,
-    maxLengthEnforced:keyboardType==TextInputType.number?true:false,
-    maxLength:keyboardType==TextInputType.number?9:keyboardType==TextInputType.phone?11:null,
-    inputFormatters: keyboardType==TextInputType.number?[FilteringTextInputFormatter.digitsOnly]:null,
+    maxLengthEnforced: keyboardType == TextInputType.number ? true : false,
+    maxLength: keyboardType == TextInputType.number
+        ? 9
+        : keyboardType == TextInputType.phone
+            ? 11
+            : null,
+    inputFormatters: keyboardType == TextInputType.number
+        ? [FilteringTextInputFormatter.digitsOnly]
+        : null,
     decoration: InputDecoration(
-       contentPadding: EdgeInsets.symmetric(vertical: getProportionateScreenHeight(11),horizontal:getProportionateScreenWidth(8) ),
+        contentPadding: EdgeInsets.symmetric(
+            vertical: getProportionateScreenHeight(11),
+            horizontal: getProportionateScreenWidth(8)),
         border: OutlineInputBorder(),
         labelText: label,
         hintText: hint,
@@ -33,7 +41,7 @@ TextFormField buildTextFormField(
   );
 }
 
-Widget buildRaisedButton({pressed, text ,color}) {
+Widget buildRaisedButton({pressed, text, color}) {
   return Container(
       width: double.infinity,
       child: RaisedButton(
@@ -65,7 +73,10 @@ showSnackbarWidget({msg, scaffoldKey}) {
     content: Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Icon(Icons.error),
+        Icon(
+          Icons.error,
+          color: white,
+        ),
         Text(
           msg,
           style: TextStyle(color: white, fontSize: 14),
@@ -77,16 +88,11 @@ showSnackbarWidget({msg, scaffoldKey}) {
   ));
 }
 
-saveUser(user,context) async {
+saveUser(user, context) async {
   final prfs = await SharedPreferences.getInstance();
-  StoreData storeData = Provider.of<StoreData>(context,listen: false);
+  StoreData storeData = Provider.of<StoreData>(context, listen: false);
   prfs.setString('user', user);
   final parsed = json.decode(user);
   User u = User.fromJson(parsed);
   storeData.initLoginUser(u);
 }
-
-
-
-
- 

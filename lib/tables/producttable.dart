@@ -21,7 +21,7 @@ class _StoreTableState extends State<ProductTable> {
   var pds;
   var _controller = TextEditingController();
   List<Product> filterdata = [];
-  List<String> filterList=[];
+  List<String> filterList = [];
   StoreData storeData;
   getData() {
     storeData = Provider.of<StoreData>(context, listen: true);
@@ -49,54 +49,47 @@ class _StoreTableState extends State<ProductTable> {
     });
   }
 
-
-
-void _openFilterDialog() async {
-    await FilterListDialog.display(
-      context,
-      allTextList: storeData.categoryList.map((e) => e.name).toList(),
-      height: 480,
-      borderRadius: 20,
-      headlineText: "Select Categories",
-      searchFieldHintText: "Search here",
-      selectedTextList: filterList,
-      headerTextColor: Kprimary,
-      applyButonTextBackgroundColor:Kprimary,
-      allResetButonColor:Kprimary,
-      selectedTextBackgroundColor:Kprimary,
-      onApplyButtonClick: (list) {
-        if (list != null) {
-          setState(() {
-            filterList = List.from(list);
-          });
-        }
-        Navigator.pop(context);
-      });
+  void _openFilterDialog() async {
+    await FilterListDialog.display(context,
+        allTextList: storeData.categoryList.map((e) => e.name).toList(),
+        height: 480,
+        borderRadius: 20,
+        headlineText: "Select Categories",
+        searchFieldHintText: "Search here",
+        selectedTextList: filterList,
+        headerTextColor: Kprimary,
+        applyButonTextBackgroundColor: Kprimary,
+        allResetButonColor: Kprimary,
+        selectedTextBackgroundColor: Kprimary, onApplyButtonClick: (list) {
+      if (list != null) {
+        setState(() {
+          filterList = List.from(list);
+        });
+      }
+      Navigator.pop(context);
+    });
   }
 
+  categoryfilter(List<String> list) {
+    List<num> idList = [];
+    list.forEach((element) {
+      idList
+          .add(storeData.categoryList.firstWhere((e) => e.name == element).id);
+    });
 
-
-  categoryfilter(List<String> list){
-      List<num> idList=[];
-      list.forEach((element) {
-        idList.add( storeData.categoryList.firstWhere((e) =>e.name==element).id);
-      });
-
-      filterdata=storeData.productList.where((element) => idList.contains(element.categoryId)).toList();
-      print(filterdata.length);
-        pds = PDS(
+    filterdata = storeData.productList
+        .where((element) => idList.contains(element.categoryId))
+        .toList();
+    print(filterdata.length);
+    pds = PDS(
         context: context,
         productList: filterdata,
         filterproductList: storeData.productList);
   }
-    
-
-
-
 
   @override
   Widget build(BuildContext context) {
-    filterList.length>0? categoryfilter(filterList):getData();
+    filterList.length > 0 ? categoryfilter(filterList) : getData();
     return SingleChildScrollView(
       child: Container(
         width: double.infinity,
@@ -113,23 +106,21 @@ void _openFilterDialog() async {
               Expanded(
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  height: getProportionateScreenHeight(55),
+                  height: 50,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                       color: greyw, borderRadius: BorderRadius.circular(10)),
                   child: buildTextField(),
                 ),
               ),
-              SizedBox(
-                width: 15,
-              ),
+             
               IconButton(
                   icon: Icon(
                     Icons.filter_list_alt,
-                    size: 35,
+                    size: 30,
                     color: Kprimary,
                   ),
-                  onPressed: ()async =>await _openFilterDialog()),
+                  onPressed: () async => await _openFilterDialog()),
             ],
           ),
           sortColumnIndex: _sortColumnIndex == -1 ? null : _sortColumnIndex,
@@ -150,6 +141,11 @@ void _openFilterDialog() async {
                   _sort<String>((d) => d.productName, columnIndex, ascending),
             ),
             DataColumn(
+              label: Text('المورد'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<String>((d) => d.customer.name, columnIndex, ascending),
+            ),
+            DataColumn(
               numeric: true,
               label: Text('سعر الشراء'),
               onSort: (columnIndex, ascending) =>
@@ -167,6 +163,12 @@ void _openFilterDialog() async {
                   _sort<num>((d) => d.amount, columnIndex, ascending),
             ),
             DataColumn(
+              numeric: true,
+              label: Text('الخصم'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<num>((d) => d.discount, columnIndex, ascending),
+            ),
+            DataColumn(
               label: Text('المخزن'),
               onSort: (columnIndex, ascending) => _sort<String>(
                   (d) => getStoreName(context: context, storeid: d.storeid),
@@ -176,7 +178,9 @@ void _openFilterDialog() async {
             DataColumn(
               label: Text('الفئة'),
               onSort: (columnIndex, ascending) => _sort<String>(
-                  (d) =>getCategoryname(context: context,id:  d.categoryId), columnIndex, ascending),
+                  (d) => getCategoryname(context: context, id: d.categoryId),
+                  columnIndex,
+                  ascending),
             ),
             DataColumn(
               label: Text('تاريخ الاشتراك'),
@@ -184,7 +188,7 @@ void _openFilterDialog() async {
                   _sort<String>((d) => d.created_at, columnIndex, ascending),
             ),
             DataColumn(
-              label: Expanded(child: Center(child: Text('تعديل / حذف'))),
+              label: Expanded(child: Center(child: Text('تعديل'))),
             ),
           ],
         ),
@@ -211,6 +215,8 @@ void _openFilterDialog() async {
             },
             cursorColor: Kprimary,
             decoration: InputDecoration(
+                  contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 suffixIcon: data
                     ? Icon(Icons.search)
                     : IconButton(
@@ -232,7 +238,7 @@ class PDS extends DataTableSource {
   List<Product> filterproductList;
   BuildContext context;
   int _selectedCount = 0;
-  StoreData _storeData ;
+  StoreData _storeData;
   PDS({this.productList, this.context, this.filterproductList});
 
   @override
@@ -252,9 +258,11 @@ class PDS extends DataTableSource {
       cells: [
         DataCell(Text(product.id.toString())),
         DataCell(Text(product.productName)),
+        DataCell(Text(product.customer.name)),
         DataCell(Center(child: Text(product.buy_price.toString()))),
         DataCell(Center(child: Text(product.sell_price.toString()))),
         DataCell(Center(child: Text(product.amount.toString()))),
+        DataCell(Center(child: Text(product.discount==null?'0.0':product.discount.toString()))),
         DataCell(
             Text(getStoreName(context: context, storeid: product.storeid))),
         DataCell(
@@ -274,14 +282,6 @@ class PDS extends DataTableSource {
                 ),
                 onPressed: () =>
                     ProductDialog(context: context).addproduct(p: product)),
-            IconButton(
-                icon: Icon(
-                  Icons.delete_forever,
-                  color: red,
-                ),
-                onPressed: () =>
-                    ProductDialog(context: context).deleteproduct(product))
-            // Storesdialog(context: context).deletestore(Product)),
           ],
         ))),
       ],
@@ -338,12 +338,8 @@ class PDS extends DataTableSource {
       notifyListeners();
       return;
     }
-
-   
-
   }
 }
-
 
 /**
  * productList.where((element) {

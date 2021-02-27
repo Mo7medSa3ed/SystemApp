@@ -5,7 +5,6 @@ import 'package:flutter_app/dialogs/dialogs.dart';
 import 'package:flutter_app/models/user.dart';
 import 'package:flutter_app/provider/specials.dart';
 import 'package:flutter_app/provider/storedata.dart';
-import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
 
 class UsersTable extends StatefulWidget {
@@ -65,7 +64,7 @@ class _UsersTableState extends State<UsersTable> {
           },
           header: Container(
             padding: EdgeInsets.symmetric(horizontal: 10),
-            height: getProportionateScreenHeight(55),
+            height: 50,
             width: double.infinity,
             decoration: BoxDecoration(
                 color: greyw, borderRadius: BorderRadius.circular(10)),
@@ -136,6 +135,8 @@ class _UsersTableState extends State<UsersTable> {
             },
             cursorColor: Kprimary,
             decoration: InputDecoration(
+                  contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 suffixIcon: _controller.text.toString().trim()==""
                     ? Icon(Icons.search)
                     : IconButton(

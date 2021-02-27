@@ -157,6 +157,8 @@ class _StoreTableState extends State<BackTableDetails> {
             },
             cursorColor: Kprimary,
             decoration: InputDecoration(
+                  contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 suffixIcon: data
                     ? Icon(Icons.search)
                     : IconButton(

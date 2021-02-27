@@ -4,7 +4,6 @@ import 'package:flutter_app/dialogs/addcustomer.dart';
 import 'package:flutter_app/models/Customer.dart';
 import 'package:flutter_app/provider/specials.dart';
 import 'package:flutter_app/provider/storedata.dart';
-import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
 
 
@@ -65,7 +64,7 @@ class _CustomerTableState extends State<CustomerTable> {
           },
           header: Container(
             padding: EdgeInsets.symmetric(horizontal: 10),
-            height: getProportionateScreenHeight(55),
+            height: 50,
             width: double.infinity,
             decoration: BoxDecoration(
                 color: greyw, borderRadius: BorderRadius.circular(10)),
@@ -90,10 +89,16 @@ class _CustomerTableState extends State<CustomerTable> {
                   _sort<String>((d) => d.name, columnIndex, ascending),
             ),
              DataColumn(
-              label: Text('الحساب'),
+              label: Text('له'),
               numeric: true,
               onSort: (columnIndex, ascending) =>
-                  _sort<num>((d) => d.total_money, columnIndex, ascending),
+                  _sort<num>((d) => d.hismoney, columnIndex, ascending),
+            ),
+             DataColumn(
+              label: Text('عليه'),
+              numeric: true,
+              onSort: (columnIndex, ascending) =>
+                  _sort<num>((d) => d.mymoney, columnIndex, ascending),
             ),
             DataColumn(
               label: Text('العنوان'),
@@ -139,6 +144,8 @@ class _CustomerTableState extends State<CustomerTable> {
             },
             cursorColor: Kprimary,
             decoration: InputDecoration(
+                  contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 suffixIcon: data
                     ? Icon(Icons.search)
                     : IconButton(
@@ -172,7 +179,8 @@ class Cds extends DataTableSource {
       cells: [
         DataCell(Text(customer.id.toString())),
         DataCell(Text(customer.name)),
-        DataCell(Text(customer.total_money.toString())),
+        DataCell(Text(customer.hismoney.toString())),
+        DataCell(Text(customer.mymoney.toString())),
         DataCell(Text(customer.address)),
         DataCell(Text(customer.phone)),
         DataCell(Text(customer.created_at != null

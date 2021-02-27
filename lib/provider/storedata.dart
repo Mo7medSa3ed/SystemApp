@@ -16,7 +16,7 @@ class StoreData extends ChangeNotifier {
   List<Categorys> categoryList = [];
   List<Customer> customerList = [];
   List<Permission> permissionList = [];
-  List<Back> backs=[];
+  List<Back> backs = [];
   double sum = 0.0;
   bool paid = false;
   changepaid(v) {
@@ -30,7 +30,11 @@ class StoreData extends ChangeNotifier {
   initLoginUser(User user) {
     loginUser = user;
     notifyListeners();
+  }
 
+  clearproductTableList() {
+    productTableList.clear();
+    notifyListeners();
   }
 
   changeCheckable(v) {
@@ -41,19 +45,16 @@ class StoreData extends ChangeNotifier {
   initUserList(userList) {
     this.userList = userList;
     notifyListeners();
-
   }
 
   initbackList(backs) {
     this.backs = backs;
     notifyListeners();
-
   }
 
   initCategoryList(categoryList) {
     this.categoryList = categoryList;
     notifyListeners();
-
   }
 
   initPermissionList(permissionList) {
@@ -64,20 +65,16 @@ class StoreData extends ChangeNotifier {
   initcustomerList(customerList) {
     this.customerList = customerList;
     notifyListeners();
-
   }
 
   initStoreList(storeList) {
     this.storeList = storeList;
     notifyListeners();
-
   }
 
   initProductList(productList) {
-
     this.productList = productList;
     notifyListeners();
-
   }
 
   addUser(User user) {
@@ -122,11 +119,11 @@ class StoreData extends ChangeNotifier {
     }
   }
 
-   updatePermission(Permission permission) {
+  updatePermission(Permission permission) {
     int u = permissionList.indexWhere((element) => element.id == permission.id);
     if (u != -1) {
-      permissionList[u]=permission;
-     /*  storeList.removeAt(u);
+      permissionList[u] = permission;
+      /*  storeList.removeAt(u);
       permissionList.insert(u, permission); */
       notifyListeners();
     }
@@ -185,7 +182,7 @@ class StoreData extends ChangeNotifier {
     notifyListeners();
   }
 
-  addproductTable(amount, Product product, context) {
+  addproductTable(amount, Product product, context, {type}) {
     if (productTableList.length > 0) {
       final p = productTableList.firstWhere((e) => e.id == product.id,
           orElse: () => null);
@@ -195,21 +192,35 @@ class StoreData extends ChangeNotifier {
               .warningDilalog2(msg: 'اقصى كمية يمكن صرفها ${product.amount}');
           return;
         } else {
-          num a = (p.amount * product.sell_price);
+          num a = 0;
+          if (type != 'add') {
+            a = (p.amount * (product.sell_price - product.discount));
+          } else {
+            a = (p.amount * (product.buy_price - product.discount));
+          }
           sum = sum - a;
+
           p.amount = (p.amount + amount);
-          p.discount=product.discount;
-          updateproductTable(p);
+          p.discount = product.discount;
+          updateproductTable(p, type: type);
         }
       } else {
-        p.discount=product.discount;
+        p.discount = product.discount;
         productTableList.add(product);
-        sum += (amount * product.sell_price);
+        if (type != 'add') {
+          sum += (amount * (product.sell_price - product.discount));
+        } else {
+          sum += (amount * (product.buy_price - product.discount));
+        }
       }
     } else {
       product.amount = amount;
       productTableList.add(product);
-      sum += (amount * product.sell_price);
+      if (type != 'add') {
+        sum += (amount * (product.sell_price - product.discount));
+      } else {
+        sum += (amount * (product.buy_price - product.discount));
+      }
     }
     notifyListeners();
   }
@@ -227,12 +238,16 @@ class StoreData extends ChangeNotifier {
     notifyListeners();
   }
 
-  updateproductTable(Product p) {
+  updateproductTable(Product p, {type}) {
     int u = productTableList.indexWhere((element) => element.id == p.id);
     if (u != -1) {
       productTableList.removeAt(u);
       productTableList.insert(u, p);
-      sum += (p.amount * p.sell_price);
+      if (type != 'add') {
+        sum += (p.amount * (p.sell_price - p.discount));
+      } else {
+        sum += (p.amount * (p.buy_price - p.discount));
+      }
     }
 
     notifyListeners();
@@ -248,6 +263,7 @@ class StoreData extends ChangeNotifier {
     products.forEach((element) {
       productTableList.remove(element);
     });
+    sum = 0.0;
     notifyListeners();
   }
 

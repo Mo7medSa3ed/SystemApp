@@ -116,14 +116,16 @@ class LoginScrean extends StatelessWidget {
       print(res.body);
       if (res.statusCode == 200) {
         final y = utf8.decode(res.bodyBytes);
-
         saveUser(y, context);
         Navigator.pop(context);
+        FocusScope.of(context).requestFocus(FocusNode());
+
         Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(builder: (_) => HomeScrean()),
             (Route<dynamic> route) => false);
       } else {
         Navigator.pop(context);
+      FocusScope.of(context).requestFocus(FocusNode());
         showSnackbarWidget(
             msg: 'برجاء ادخال البيانات صحيحة و التاكد من الاتصال بالانترنت !!',
             scaffoldKey: scaffoldKey);

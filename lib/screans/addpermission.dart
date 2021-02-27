@@ -38,22 +38,26 @@ class AddpPermissionScrean extends StatelessWidget {
 
   int amount = 0;
   bool sw = false;
-  num finalPrice = 0.0;
   bool expanded = false;
   String paidMoney;
   String discount = '0';
   Product product;
   List<Product> productList = [];
   var controller = TextEditingController();
-
+  var discontroller = TextEditingController();
+  var paidcontroller = TextEditingController();
   var amountController = TextEditingController(text: '0');
   var scrollController = ScrollController();
 
   reset() {
-    storeData.productTableList = [];
+    storeData.clearproductTableList();
     specials.productselected = false;
+    amountController.clear();
+    discontroller.clear();
+    paidcontroller.clear();
     storeData.sum = 0.0;
     storeData.paid = false;
+    customer = null;
   }
 
   @override
@@ -80,12 +84,12 @@ class AddpPermissionScrean extends StatelessWidget {
                 selector: (c, s) => s.scroll,
                 builder: (_, v, c) => FloatingActionButton(
                   backgroundColor: Kprimary.withOpacity(0.7),
-                  child: Icon(v ? Icons.arrow_upward : Icons.arrow_downward),
+                  child: Icon(!v ? Icons.arrow_upward : Icons.arrow_downward),
                   onPressed: () {
                     scrollController.animateTo(
-                        v
-                            ? scrollController.position.minScrollExtent
-                            : scrollController.position.maxScrollExtent,
+                        scrollController.position.pixels == 0
+                            ? scrollController.position.maxScrollExtent
+                            : scrollController.position.minScrollExtent,
                         duration: Duration(milliseconds: 500),
                         curve: Curves.fastOutSlowIn);
                     specials.changescroll(!v);
@@ -244,8 +248,8 @@ class AddpPermissionScrean extends StatelessWidget {
  */
     return Container(
         margin: EdgeInsets.only(right: 5.0),
-        height: getProportionateScreenHeight(45),
-        width: getProportionateScreenWidth(52),
+        height: 45,
+        width: 52,
         alignment: Alignment.center,
         child: RaisedButton(
             color: Kprimary,
@@ -272,6 +276,13 @@ class AddpPermissionScrean extends StatelessWidget {
                 clearOnSubmit: false,
                 suggestions: v.productList,
                 decoration: InputDecoration(
+                    suffixIcon: IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: () {
+                          controller.clear();
+                          product = null;
+                          specials.changeProdutcSelected(false);
+                        }),
                     contentPadding: EdgeInsets.symmetric(
                         vertical: getProportionateScreenHeight(10),
                         horizontal: getProportionateScreenWidth(10)),
@@ -323,8 +334,8 @@ class AddpPermissionScrean extends StatelessWidget {
               children: [
                 Container(
                     margin: EdgeInsets.only(right: 5.0),
-                    height: getProportionateScreenHeight(45),
-                    width: getProportionateScreenWidth(55),
+                    height: 45,
+                    width: 55,
                     alignment: Alignment.center,
                     child: RaisedButton(
                         color: v.productselected
@@ -358,7 +369,7 @@ class AddpPermissionScrean extends StatelessWidget {
                           }
                         })),
                 Container(
-                    // height: 55,
+                    // height: 50,
                     margin: EdgeInsets.only(right: 5, left: 5),
                     width: getProportionateScreenWidth(90),
                     alignment: Alignment.center,
@@ -373,8 +384,8 @@ class AddpPermissionScrean extends StatelessWidget {
                     )),
                 Container(
                     margin: EdgeInsets.only(right: 5.0),
-                    height: getProportionateScreenHeight(45),
-                    width: getProportionateScreenWidth(55),
+                    height: 45,
+                    width: 55,
                     alignment: Alignment.center,
                     child: RaisedButton(
                         color: v.productselected
@@ -401,6 +412,7 @@ class AddpPermissionScrean extends StatelessWidget {
                 ),
                 Expanded(
                   child: TextField(
+                    controller: discontroller,
                     textAlign: TextAlign.center,
                     onChanged: (v) {
                       discount = v;
@@ -422,10 +434,18 @@ class AddpPermissionScrean extends StatelessWidget {
               child: RaisedButton(
                 color: v.productselected ? Kprimary : Kprimary.withOpacity(0.3),
                 onPressed: () {
-                  if (amount == 0) {
-                    Dialogs(context)
+                  if (!(v.productselected)) {
+                    return Dialogs(context)
+                        .warningDilalog2(msg: 'برجاء اختيار منتج اولا');
+                  } else if (amount == 0) {
+                    return Dialogs(context)
                         .warningDilalog2(msg: ' !!ادخل الكمية المطلوبة');
                   } else if (product != null) {
+                    if (double.parse(discount) > product.buy_price) {
+                      return Dialogs(context)
+                          .warningDilalog2(msg: '!! الخصم اكبر من سعر الشراء');
+                    }
+
                     if (amount > product.amount && type != 'add') {
                       Dialogs(context).warningDilalog2(
                           msg: 'اقصى كمية يمكن صرفها ${product.amount}');
@@ -471,8 +491,9 @@ class AddpPermissionScrean extends StatelessWidget {
   void addtoTableMethod(context) {
     product.discount =
         (discount == null || discount.isEmpty) ? 0 : double.parse(discount);
-    storeData.addproductTable(amount, product, context);
+    storeData.addproductTable(amount, product, context, type: type);
     specials.changeProdutcSelected(false);
+    discontroller.clear();
     product = null;
     controller.clear();
     amountController.text = '0';
@@ -519,6 +540,7 @@ class AddpPermissionScrean extends StatelessWidget {
                     margin: EdgeInsets.fromLTRB(getProportionateScreenWidth(8),
                         0, getProportionateScreenWidth(8), 0),
                     child: TextField(
+                      controller: paidcontroller,
                       textAlign: TextAlign.center,
                       onChanged: (v) {
                         paidMoney = v;
@@ -587,7 +609,10 @@ class AddpPermissionScrean extends StatelessWidget {
                   sell_price: e.sell_price,
                   storeid: e.storeid,
                   categoryId: e.categoryId)
-              : ProductBackup(productId: e.id, amount: e.amount))
+              : ProductBackup(
+                  productId: e.id,
+                  amount: e.amount,
+                  discount: double.parse(discount)))
           .toList();
 
       CustomerBackeup c = CustomerBackeup(

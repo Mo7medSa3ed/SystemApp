@@ -131,7 +131,7 @@ class _PermissionTableState extends State<PermissionTable> {
                 },
                 header: Container(
                   padding: EdgeInsets.symmetric(horizontal: 10),
-                  height: getProportionateScreenHeight(55),
+                  height: 50,
                   width: double.infinity,
                   decoration: BoxDecoration(
                       color: greyw, borderRadius: BorderRadius.circular(10)),
@@ -216,6 +216,8 @@ class _PermissionTableState extends State<PermissionTable> {
             },
             cursorColor: Kprimary,
             decoration: InputDecoration(
+                  contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 suffixIcon: data
                     ? Icon(Icons.search)
                     : IconButton(

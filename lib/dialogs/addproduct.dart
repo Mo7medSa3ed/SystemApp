@@ -19,10 +19,11 @@ class ProductDialog {
   List<Categorys> categoriesList = [];
   bool expanded = false;
   String name;
+  String discount = "0";
   StoreData storeData;
   final formKey = GlobalKey<FormState>();
-    final formKey2 = GlobalKey<FormState>();
-
+  final formKey2 = GlobalKey<FormState>();
+  var controller = TextEditingController();
 
   addproduct({Product p}) {
     SizeConfig().init(context);
@@ -91,6 +92,14 @@ class ProductDialog {
                     SizedBox(
                       height: getProportionateScreenHeight(20),
                     ),
+                    buildTextFormField(
+                        value: p != null ? p.discount.toString() : null,
+                        onsaved: (v) => discount = v,
+                        secure: false,
+                        hint: 'ادخل الخصم ان وجد',
+                        icon: Icons.monetization_on_outlined,
+                        label: 'الخصم',
+                        keyboardType: TextInputType.number),
                     autoComplete(),
                     SizedBox(height: getProportionateScreenHeight(20)),
                     buildDropDown(
@@ -136,12 +145,19 @@ class ProductDialog {
       children: [
         Expanded(
           child: AutoCompleteTextField<Categorys>(
-            //controller: controller,
+            controller: controller,
             clearOnSubmit: false,
             suggestions: categoriesList,
             decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: getProportionateScreenHeight(11), horizontal: getProportionateScreenWidth(8)),
+                suffixIcon: IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () {
+                      controller.clear();
+                      categorys = null;
+                    }),
+                contentPadding: EdgeInsets.symmetric(
+                    vertical: getProportionateScreenHeight(11),
+                    horizontal: getProportionateScreenWidth(8)),
                 filled: true,
                 fillColor: white,
                 hintText: 'ابحث عن فئة ....',
@@ -149,6 +165,7 @@ class ProductDialog {
             itemFilter: (Categorys p, String s) =>
                 p.name.toLowerCase().trim().contains(s.toLowerCase().trim()),
             itemSubmitted: (Categorys p) {
+              controller.text = p.name;
               categorys = Categorys(
                   id: p.id,
                   created_at: p.created_at,
@@ -163,26 +180,23 @@ class ProductDialog {
           ),
         ),
 
+        /* IconButton(icon: Icon(Icons.add_box_rounded,size: 30,color: Kprimary,), onPressed: (){}) */
 
-       /* IconButton(icon: Icon(Icons.add_box_rounded,size: 30,color: Kprimary,), onPressed: (){}) */
-
-
-          Container(
-          height: getProportionateScreenHeight(45),
-                    width: getProportionateScreenWidth(55),
-            margin: EdgeInsets.only(right: 4),
-            child: RaisedButton(
-               color: Kprimary,
-               shape: RoundedRectangleBorder(
-                   borderRadius: BorderRadius.circular(4)),
-               child: Icon(
-                 Icons.add,
-                 size: 18,
-                 color: white,
-               ),
-               onPressed: () => addcategory()),
-          ), 
-        
+        Container(
+          height: 45,
+          width: 55,
+          margin: EdgeInsets.only(right: 4),
+          child: RaisedButton(
+              color: Kprimary,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4)),
+              child: Icon(
+                Icons.add,
+                size: 18,
+                color: white,
+              ),
+              onPressed: () => addcategory()),
+        ),
       ],
     );
   }
@@ -317,7 +331,7 @@ class ProductDialog {
       Categorys category = Categorys(productslength: 0.0, name: name);
       final res = await API.addCategory(category);
       if (res != null) {
-        categoriesList.add(res);
+        //categoriesList.add(res);
         storeData.addCategory(res);
         Navigator.pop(context);
         Navigator.pop(context);
@@ -337,6 +351,7 @@ class ProductDialog {
         buyprice == null ||
         storename == null ||
         categorys == null ||
+        discount == null ||
         amount == null) {
       return Dialogs(context).infoDilalog();
     } else {
@@ -345,6 +360,9 @@ class ProductDialog {
 
       Product p = Product(
           id: 0,
+          discount: (discount == null || discount.isEmpty)
+              ? 0
+              : double.parse(discount),
           productName: productname,
           amount: int.parse(amount.trim()),
           buy_price: double.parse(buyprice.trim()),
@@ -353,7 +371,11 @@ class ProductDialog {
           categoryId: categorys.id);
       p.added = true;
       storeData.addProduct(p);
-      storeData.addproductTable(p.amount, p, context);
+      storeData.addproductTable(
+        p.amount,
+        p,
+        context,
+      );
       Navigator.pop(context);
       Navigator.pop(context);
       Dialogs(context).successDilalog("تم اضافة منتج بنجاح");
@@ -374,6 +396,7 @@ class ProductDialog {
         buyprice == null ||
         storename == null ||
         categorys == null ||
+        discount == null ||
         amount == null) {
       return Dialogs(context).infoDilalog();
     } else {
@@ -383,6 +406,9 @@ class ProductDialog {
       Product product = Product(
           id: p.id,
           productName: productname,
+          discount: (discount == null || discount.isEmpty)
+              ? 0
+              : double.parse(discount),
           amount: int.parse(amount.trim()),
           buy_price: double.parse(buyprice.trim()),
           sell_price: double.parse(sellprice.trim()),
@@ -516,7 +542,7 @@ class ProductDialog {
         ]).show();
   }
 
-  updateAmount(Product p, type) {
+  updateAmount(Product p, type, dis) {
     SizeConfig().init(context);
     return Alert(
         context: context,
@@ -525,7 +551,7 @@ class ProductDialog {
           color: black,
           size: 24,
         ),
-        title: 'تعديل الكمية',
+        title: !dis ? 'تعديل الكمية' : "تعديل الخصم",
         content: Directionality(
           textDirection: TextDirection.rtl,
           child: Container(
@@ -537,13 +563,21 @@ class ProductDialog {
                   SizedBox(
                     height: getProportionateScreenHeight(10),
                   ),
-                  buildTextFormField(
-                      value: p != null ? p.amount.toString() : null,
-                      onsaved: (v) => amount = v,
-                      secure: false,
-                      hint: 'اكتب الكمية',
-                      label: 'الكمية',
-                      keyboardType: TextInputType.number),
+                  dis
+                      ? buildTextFormField(
+                          value: p != null ? p.discount.toString() : null,
+                          onsaved: (v) => discount = v,
+                          secure: false,
+                          hint: 'اكتب الخصم',
+                          label: 'الخصم',
+                          keyboardType: TextInputType.number)
+                      : buildTextFormField(
+                          value: p != null ? p.amount.toString() : null,
+                          onsaved: (v) => amount = v,
+                          secure: false,
+                          hint: 'اكتب الكمية',
+                          label: 'الكمية',
+                          keyboardType: TextInputType.number),
                 ],
               ),
             ),
@@ -553,10 +587,10 @@ class ProductDialog {
           DialogButton(
             height: getProportionateScreenHeight(50),
             color: Kprimary,
-            onPressed: () => updateamount(type, p),
+            onPressed: () => updateamount(type, p, dis),
             child: Center(
               child: Text(
-                'تعديل الكمية',
+                !dis ? 'تعديل الكمية' : "تعديل الخصم",
                 style: TextStyle(color: white, fontSize: 16),
               ),
             ),
@@ -564,29 +598,57 @@ class ProductDialog {
         ]).show();
   }
 
-  updateamount(type, p) {
+  updateamount(type, Product p, dis) {
     formKey.currentState.save();
     storeData = Provider.of<StoreData>(context, listen: false);
-
-    if (type != 'add') {
-      Product p2 = storeData.productList.firstWhere((e) => e.id == p.id);
-
-      if (int.parse(amount) <= p2.amount) {
-        storeData.sum -= (p.amount * p.sell_price);
-        p.amount = int.parse(amount.trim());
-        storeData.updateproductTable(p);
-        Navigator.pop(context);
-        // Dialogs(context).successDilalog("تم تعديل المنتج بنجاح");
+    if (!dis) {
+      if (type != 'add') {
+        Product p2 = storeData.productList.firstWhere((e) => e.id == p.id);
+        if (int.parse(amount) <= p2.amount) {
+          storeData.sum -= (p.amount * (p.sell_price - p.discount));
+          p.amount = int.parse(amount.trim());
+          storeData.updateproductTable(p, type: type);
+          Navigator.pop(context);
+          // Dialogs(context).successDilalog("تم تعديل المنتج بنجاح");
+        } else {
+          Navigator.pop(context);
+          Dialogs(context)
+              .warningDilalog2(msg: 'اقصى كمية يمكن صرفها ${p2.amount}');
+        }
       } else {
+        print("asdas");
+        storeData.sum -= (p.amount * (p.buy_price - p.discount));
+        p.amount = int.parse(amount.trim());
+        storeData.updateproductTable(p, type: type);
         Navigator.pop(context);
-        Dialogs(context)
-            .warningDilalog2(msg: 'اقصى كمية يمكن صرفها ${p2.amount}');
       }
     } else {
-      storeData.sum -= (p.amount * p.sell_price);
-      p.amount = int.parse(amount.trim());
-      storeData.updateproductTable(p);
-      Navigator.pop(context);
+      Product p2 = storeData.productList.firstWhere((e) => e.id == p.id);
+      if (double.parse(discount.trim()) != p.discount) {
+        if (type != 'add') {
+          if (double.parse(discount) > p2.sell_price) {
+            Navigator.pop(context);
+            Dialogs(context).warningDilalog2(msg: 'الخصم اكبر من سعر البيع');
+          } else {
+            storeData.sum -= (p.amount * (p.sell_price - p.discount));
+            p.discount = double.parse(discount.trim());
+            storeData.updateproductTable(p, type: type);
+            Navigator.pop(context);
+          }
+        } else {
+          if (double.parse(discount) > p2.buy_price) {
+            Navigator.pop(context);
+            Dialogs(context).warningDilalog2(msg: 'الخصم اكبر من سعر الشراء');
+          } else {
+            storeData.sum -= (p.amount * (p.buy_price - p.discount));
+            p.discount = double.parse(discount.trim());
+            storeData.updateproductTable(p, type: type);
+            Navigator.pop(context);
+          }
+        }
+      } else {
+        Navigator.pop(context);
+      }
     }
   }
 

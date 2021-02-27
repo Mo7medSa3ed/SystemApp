@@ -5,7 +5,6 @@ import 'package:flutter_app/dialogs/dialogs.dart';
 import 'package:flutter_app/models/product.dart';
 import 'package:flutter_app/provider/specials.dart';
 import 'package:flutter_app/provider/storedata.dart';
-import 'package:flutter_app/size_config.dart';
 import 'package:provider/provider.dart';
 
 class PerTable extends StatefulWidget {
@@ -21,12 +20,16 @@ class _StoreTableState extends State<PerTable> {
   var _sortAscending = true;
   var pds;
   var _controller = TextEditingController();
-  
+
   StoreData storeData;
   getData() {
     storeData = Provider.of<StoreData>(context, listen: true);
     final list = storeData.productTableList;
-    pds = PDS(context: context, productList: list, filterproductList: list,type: widget.type);
+    pds = PDS(
+        context: context,
+        productList: list,
+        filterproductList: list,
+        type: widget.type);
   }
 
   void _sort<T>(
@@ -50,6 +53,7 @@ class _StoreTableState extends State<PerTable> {
   @override
   Widget build(BuildContext context) {
     getData();
+
     return SingleChildScrollView(
       child: Container(
         width: double.infinity,
@@ -65,8 +69,7 @@ class _StoreTableState extends State<PerTable> {
             children: [
               Expanded(
                 child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 10),
-                  height: getProportionateScreenHeight(55),
+                  height: 50,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                       color: greyw, borderRadius: BorderRadius.circular(10)),
@@ -82,14 +85,15 @@ class _StoreTableState extends State<PerTable> {
                     size: 35,
                     color: red,
                   ),
-                  onPressed: (){
-                    final l = storeData.productTableList.where((element) => element.selected).toList();
-                    if(l.length>0){
-
-                     ProductDialog(context: context).deleteProductsTable(l);
-                    }else{
-                      Dialogs(context)
-                      .warningDilalog2(msg: '!! برجاء اختيار منتج ع الأقل ');
+                  onPressed: () {
+                    final l = storeData.productTableList
+                        .where((element) => element.selected)
+                        .toList();
+                    if (l.length > 0) {
+                      ProductDialog(context: context).deleteProductsTable(l);
+                    } else {
+                      Dialogs(context).warningDilalog2(
+                          msg: '!! برجاء اختيار منتج ع الأقل ');
                     }
                   }),
             ],
@@ -124,11 +128,16 @@ class _StoreTableState extends State<PerTable> {
             ),
             DataColumn(
               numeric: true,
-              label: Text(widget.type=='add'?'سعر الشراء':'سعر البيع'),
+              label: Text(widget.type == 'add' ? 'سعر الشراء' : 'سعر البيع'),
               onSort: (columnIndex, ascending) =>
                   _sort<num>((d) => d.sell_price, columnIndex, ascending),
             ),
-          
+            DataColumn(
+              numeric: true,
+              label: Text('الخصم'),
+              onSort: (columnIndex, ascending) =>
+                  _sort<num>((d) => d.discount, columnIndex, ascending),
+            ),
             DataColumn(
               label: Text('المخزن'),
               onSort: (columnIndex, ascending) => _sort<String>(
@@ -149,9 +158,6 @@ class _StoreTableState extends State<PerTable> {
     Specials s = Provider.of<Specials>(context, listen: false);
     return Selector<Specials, bool>(
         selector: (_, m) => m.istextempty,
-
-        
-
         builder: (_, data, c) {
           return TextField(
             controller: _controller,
@@ -167,6 +173,9 @@ class _StoreTableState extends State<PerTable> {
             },
             cursorColor: Kprimary,
             decoration: InputDecoration(
+              
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 suffixIcon: data
                     ? Icon(Icons.search)
                     : IconButton(
@@ -190,7 +199,7 @@ class PDS extends DataTableSource {
   String type;
   int _selectedCount = 0;
   StoreData _storeData;
-  PDS({this.productList, this.context, this.filterproductList,this.type});
+  PDS({this.productList, this.context, this.filterproductList, this.type});
 
   @override
   DataRow getRow(int index) {
@@ -210,8 +219,18 @@ class PDS extends DataTableSource {
         DataCell(Text(product.productName)),
         DataCell(
             Text(getCategoryname(context: context, id: product.categoryId))),
-        DataCell(Center(child: Text(product.amount.toString()))),
-        DataCell(Center(child: Text(type=='add'?product.buy_price.toString():product.sell_price.toString()))),
+        DataCell(Center(child: Text(product.amount.toString())),
+            showEditIcon: true,
+            onTap: () => ProductDialog(context: context)
+                .updateAmount(product, type, false)),
+        DataCell(Center(
+            child: Text(type == 'add'
+                ? product.buy_price.toString()
+                : product.sell_price.toString()))),
+        DataCell(Center(child: Text(product.discount.toString())),
+            showEditIcon: true,
+            onTap: () => ProductDialog(context: context)
+                .updateAmount(product, type, true)),
         DataCell(
             Text(getStoreName(context: context, storeid: product.storeid))),
         DataCell(Center(
@@ -221,18 +240,11 @@ class PDS extends DataTableSource {
           children: [
             IconButton(
                 icon: Icon(
-                  Icons.edit,
-                  color: black,
-                ),
-                onPressed: () =>
-                    ProductDialog(context: context).updateAmount(product,type)),
-            IconButton(
-                icon: Icon(
                   Icons.delete_forever,
                   color: red,
                 ),
-                onPressed: () =>
-                    ProductDialog(context: context).deleteProductfrontable(product))
+                onPressed: () => ProductDialog(context: context)
+                    .deleteProductfrontable(product))
             // Storesdialog(context: context).deletestore(Product)),
           ],
         ))),
@@ -262,7 +274,8 @@ class PDS extends DataTableSource {
     });
     notifyListeners();
   }
- void _selectAll(bool checked) {
+
+  void _selectAll(bool checked) {
     int c = 0;
     for (Product user in productList) {
       user.selected = !user.selected;

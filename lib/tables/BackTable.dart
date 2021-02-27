@@ -89,7 +89,7 @@ class _StoreTableState extends State<BackTable> {
                             Expanded(
                               child: Container(
                                 padding: EdgeInsets.symmetric(horizontal: 10),
-                                height: getProportionateScreenHeight(55),
+                                height:55,
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                     color: greyw,
@@ -239,6 +239,8 @@ class _StoreTableState extends State<BackTable> {
             },
             cursorColor: Kprimary,
             decoration: InputDecoration(
+                  contentPadding:
+                    EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 suffixIcon: data
                     ? Icon(Icons.search)
                     : IconButton(

@@ -37,7 +37,7 @@ class _HomeScreanState extends State<HomeScrean> {
       setState(() {
         permisionList = value;
         alldataList = value;
-      //  getdata('add');
+        //  getdata('add');
         filterdata('add');
         filterdata('lack');
       });
@@ -61,9 +61,9 @@ class _HomeScreanState extends State<HomeScrean> {
     storeData = Provider.of<StoreData>(context, listen: true);
     final l = storeData.userList;
     a = l.length;
-    b = l.where((e) => e.role == 'عامل').toList().length;
-    c = l.where((e) => e.role == 'مدير مخزن').toList().length;
-    d = l.where((e) => e.role == 'امين مخزن').toList().length;
+    b = storeData.customerList.where((e) => e.type == 'عميل').length;
+    c = storeData.customerList.where((e) => e.type != 'عميل').length;
+    d = storeData.categoryList.length;
     e = storeData.productList.length;
     f = storeData.storeList.length;
   }
@@ -108,15 +108,15 @@ class _HomeScreanState extends State<HomeScrean> {
         Row(
           children: [
             lonecard('موظف', a.toString(), Icons.people, true),
-            lonecard('مدير مخزن', b.toString(), Icons.people, true),
-            lonecard('امين مخزن', c.toString(), Icons.people, true)
+            lonecard('عميل', b.toString(), Icons.people, true),
+            lonecard('مورد', c.toString(), Icons.people, true)
           ],
         ),
         Row(
           children: [
-            lonecard('عامل', d.toString(), Icons.people, true),
+            lonecard('مخزن', f.toString(), Icons.store, true),
+            lonecard('فئة', d.toString(), Icons.category, true),
             lonecard('منتج', e.toString(), Icons.grid_on, true),
-            lonecard('مخزن', f.toString(), Icons.store, true)
           ],
         ),
         SizedBox(
@@ -130,9 +130,8 @@ class _HomeScreanState extends State<HomeScrean> {
     return Row(
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(6, 8, 6, 8),
+          padding: const EdgeInsets.fromLTRB(8, 8, 2, 8),
           child: CircleAvatar(
-            
             backgroundColor: Kprimary,
             child: IconButton(
                 icon: Icon(
@@ -155,8 +154,9 @@ class _HomeScreanState extends State<HomeScrean> {
             onTap: () async => await showDatePicker(),
             readOnly: true,
             decoration: InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(vertical: getProportionateScreenHeight(6), horizontal: getProportionateScreenWidth(10)),
+                contentPadding: EdgeInsets.symmetric(
+                    vertical: getProportionateScreenHeight(6),
+                    horizontal: getProportionateScreenWidth(10)),
                 filled: true,
                 hintText: 'اختر المدة التى تريد جردها',
                 fillColor: white,
@@ -259,7 +259,8 @@ class _HomeScreanState extends State<HomeScrean> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding:  EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(6)),
+                padding: EdgeInsets.symmetric(
+                    horizontal: getProportionateScreenWidth(6)),
                 child: Text(
                   'الصادرات و الواردات :  ',
                   style: TextStyle(
@@ -269,22 +270,23 @@ class _HomeScreanState extends State<HomeScrean> {
                 ),
               ),
               Padding(
-                padding:  EdgeInsets.all(getProportionateScreenWidth(6)),
+                padding: EdgeInsets.all(getProportionateScreenWidth(6)),
                 child: buidPicker(),
               ),
               SizedBox(
                 height: getProportionateScreenHeight(10),
               ),
               Padding(
-                padding:  EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(4)),
+                padding: EdgeInsets.symmetric(
+                    horizontal: getProportionateScreenWidth(4)),
                 child: Row(
                   children: [
                     buildCardsforstatistic('اﻷذونات', Icons.security,
                         '${permisionList.length} اذن'),
-                    buildCardsforstatistic(
-                        'الصادرات', Icons.outbox, '${filterdata('lack').length>0?filterdata('lack')[0].sum:0} جنيه'),
-                    buildCardsforstatistic(
-                        'الواردات', Icons.inbox, '${filterdata('add').length>0?filterdata('add')[0].sum:0} جنيه'),
+                    buildCardsforstatistic('الصادرات', Icons.outbox,
+                        '${filterdata('lack').length > 0 ? filterdata('lack')[0].sum : 0} جنيه'),
+                    buildCardsforstatistic('الواردات', Icons.inbox,
+                        '${filterdata('add').length > 0 ? filterdata('add')[0].sum : 0} جنيه'),
                   ],
                 ),
               ),
