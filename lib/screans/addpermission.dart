@@ -602,7 +602,7 @@ class AddpPermissionScrean extends StatelessWidget {
           .map((e) => (e.added && e.id == 0)
               ? ProductBackup(
                   productId: 0,
-                  discount: e.discount,
+                  discount: e.discount !=null?e.discount:0.0,
                   productName: e.productName,
                   amount: e.amount,
                   buy_price: e.buy_price,

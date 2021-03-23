@@ -93,14 +93,15 @@ class ProductDialog {
                       height: getProportionateScreenHeight(20),
                     ),
                     buildTextFormField(
-                        value: p != null ? p.discount.toString() : null,
+                        value: p != null ? p.discount==null?0.toString():p.discount.toString(): 0.toString(),
                         onsaved: (v) => discount = v,
                         secure: false,
                         hint: 'ادخل الخصم ان وجد',
                         icon: Icons.monetization_on_outlined,
                         label: 'الخصم',
                         keyboardType: TextInputType.number),
-                    autoComplete(),
+                    autoComplete(
+                        getCategoryname(context: context, id: p.categoryId)),
                     SizedBox(height: getProportionateScreenHeight(20)),
                     buildDropDown(
                         expanded: expanded,
@@ -138,7 +139,7 @@ class ProductDialog {
         ]).show();
   }
 
-  Widget autoComplete() {
+  Widget autoComplete(value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -160,7 +161,7 @@ class ProductDialog {
                     horizontal: getProportionateScreenWidth(8)),
                 filled: true,
                 fillColor: white,
-                hintText: 'ابحث عن فئة ....',
+                hintText: value != null ? value : 'ابحث عن فئة ....',
                 border: OutlineInputBorder()),
             itemFilter: (Categorys p, String s) =>
                 p.name.toLowerCase().trim().contains(s.toLowerCase().trim()),

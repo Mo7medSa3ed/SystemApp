@@ -70,31 +70,29 @@ class _HomeScreanState extends State<HomeScrean> {
 
   @override
   void didChangeDependencies() {
-    // TODO: implement didChangeDependencies
     super.didChangeDependencies();
     data();
   }
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Directionality(
-        textDirection: TextDirection.rtl,
-        child: Scaffold(
-          backgroundColor: white.withOpacity(0.95),
-          appBar: AppBar(
-            title: Text('مخزنك'),
-          ),
-          drawer: MainDrawer(),
-          body: RefreshIndicator(
-            onRefresh: () => Navigator.of(context).pushReplacement(
-                MaterialPageRoute(builder: (_) => HomeScrean())),
-            child: ListView(
-              children: [
-                cards(),
-                buildChart(),
-              ],
-            ),
+    return Directionality(
+      textDirection: TextDirection.rtl,
+      child: Scaffold(
+        
+        backgroundColor: white.withOpacity(0.95),
+        appBar: AppBar(
+          title: Text('مخزنك'),
+        ),
+        drawer: MainDrawer(),
+        body: RefreshIndicator(
+          onRefresh: () => Navigator.of(context)
+              .pushReplacement(MaterialPageRoute(builder: (_) => HomeScrean())),
+          child: ListView(
+            children: [
+              cards(),
+              buildChart(),
+            ],
           ),
         ),
       ),
@@ -320,7 +318,8 @@ class _HomeScreanState extends State<HomeScrean> {
             ChartTitle(text: type == 'add' ? 'جميع الواردات' : 'جميع الصادرات'),
         tooltipBehavior: TooltipBehavior(enable: true),
         series: <ChartSeries<Chartdata, DateTime>>[
-          SplineSeries<Chartdata, DateTime>(
+          ColumnSeries<Chartdata, DateTime>(
+              color: type == 'add' ?  Kprimary :Color.fromRGBO(248,121,121,1),
               dataSource: filterdata(type),
               xValueMapper: (Chartdata sales, _) => DateTime.parse(sales.day),
               yValueMapper: (Chartdata sales, _) => sales.sum,
@@ -348,6 +347,7 @@ class _HomeScreanState extends State<HomeScrean> {
           }
         });
         chartdataList.add(Chartdata(day: e, sum: s));
+        s = 0;
       });
     } else {
       lacklist =
@@ -361,6 +361,7 @@ class _HomeScreanState extends State<HomeScrean> {
             s += c.sum;
           }
         });
+        s = 0;
         chartdataList.add(Chartdata(day: e, sum: s));
       });
     }

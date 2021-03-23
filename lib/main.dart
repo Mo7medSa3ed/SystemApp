@@ -22,10 +22,13 @@ class MyApp extends StatelessWidget {
           create: (context) => Specials(),
         ),
       ],
-      child: MaterialApp(  
+      child: MaterialApp(
         title: 'مخزنك',
         debugShowCheckedModeBanner: false,
+        
         theme: ThemeData(
+            
+          brightness: Brightness.light,
           scaffoldBackgroundColor: Colors.white.withOpacity(0.98),
           fontFamily: 'Cairo',
           accentColor: Kprimary,

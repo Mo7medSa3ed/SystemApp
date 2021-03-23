@@ -2,9 +2,9 @@ import 'package:flutter/foundation.dart';
 
 class Specials extends ChangeNotifier {
 
-bool istextempty = true;
 bool productselected = false;
 bool scroll = false;
+bool istextempty = true;
 
 
 changeIsEmpty(v){

@@ -151,37 +151,42 @@ class _PermissionTableState extends State<PermissionTable> {
                     onSort: (columnIndex, ascending) =>
                         _sort<num>((d) => d.id, columnIndex, ascending),
                   ),
-                 
                   DataColumn(
                     label: Text('اسم العميل'),
                     onSort: (columnIndex, ascending) => _sort<String>(
                         (d) => d.customer.name, columnIndex, ascending),
                   ),
-                   DataColumn(
+                  DataColumn(
                     label: Text('المبلغ الكلى'),
-                    onSort: (columnIndex, ascending) => _sort<num>(
-                        (d) => (d.sum-d.paidMoney), columnIndex, ascending),
+                    onSort: (columnIndex, ascending) =>
+                        _sort<num>((d) => (d.sum), columnIndex, ascending),
                   ),
-                     DataColumn(
+                  DataColumn(
                     label: Text('المبلغ المدفوع'),
-                    onSort: (columnIndex, ascending) => _sort<num>(
-                        (d) => d.paidMoney, columnIndex, ascending),
+                    onSort: (columnIndex, ascending) =>
+                        _sort<num>((d) => d.paidMoney, columnIndex, ascending),
                   ),
-                     DataColumn(
+                  DataColumn(
+                    label: Text('المبلغ المتبقى'),
+                    onSort: (columnIndex, ascending) => _sort<num>(
+                        (d) => d.paidMoney - d.paidMoney,
+                        columnIndex,
+                        ascending),
+                  ),
+                  DataColumn(
                     label: Text('نوع الدفع'),
                     onSort: (columnIndex, ascending) => _sort<String>(
-                        (d) => d.paidType ,columnIndex, ascending),
+                        (d) => d.paidType, columnIndex, ascending),
                   ),
-                
-                    DataColumn(
+                  DataColumn(
                     label: Text('اسم العامل'),
                     onSort: (columnIndex, ascending) => _sort<String>(
-                        (d) => d.user.username,columnIndex, ascending),
+                        (d) => d.user.username, columnIndex, ascending),
                   ),
-                     DataColumn(
+                  DataColumn(
                     label: Text('عدد مرات التعديل'),
                     onSort: (columnIndex, ascending) => _sort<num>(
-                        (d) => d.backs.length,columnIndex, ascending),
+                        (d) => d.backs.length, columnIndex, ascending),
                   ),
                   DataColumn(
                     label: Text('تاريخ الاشتراك'),
@@ -216,7 +221,7 @@ class _PermissionTableState extends State<PermissionTable> {
             },
             cursorColor: Kprimary,
             decoration: InputDecoration(
-                  contentPadding:
+                contentPadding:
                     EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 suffixIcon: data
                     ? Icon(Icons.search)
@@ -246,15 +251,19 @@ class Cds extends DataTableSource {
     final permission = permissionList[index];
     return DataRow.byIndex(
       index: index,
-      onSelectChanged: (v)=>Navigator.of(context).push(MaterialPageRoute(builder: (_)=>PermisionDetailsScrean(index))),
+      onSelectChanged: (v) => Navigator.of(context).push(
+          MaterialPageRoute(builder: (_) => PermisionDetailsScrean(index))),
       cells: [
         DataCell(Text(permission.id.toString())),
         DataCell(Text(permission.customer.name.toString())),
-        DataCell(Center(child: Text((permission.sum-permission.paidMoney).toString()))),
+        DataCell(Center(child: Text((permission.sum).toString()))),
+        DataCell(Center(
+            child: Text((permission.sum - permission.paidMoney).toString()))),
         DataCell(Center(child: Text(permission.paidMoney.toString()))),
         DataCell(Text(permission.paidType)),
         DataCell(Text(permission.user.username)),
-        DataCell(Center(child: Text(permission.backs.length.toString()+' مرة'))),
+        DataCell(
+            Center(child: Text(permission.backs.length.toString() + ' مرة'))),
         DataCell(Text(permission.created_at != null
             ? permission.created_at.substring(0, 10)
             : "")),
